@@ -1,0 +1,6 @@
+@Palloncino_HostAddress = http://localhost:5179
+
+GET {{Palloncino_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

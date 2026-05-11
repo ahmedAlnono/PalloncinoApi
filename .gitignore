@@ -1,0 +1,563 @@
+# =====================
+# .NET Core / .NET 10
+# =====================
+
+## Build artifacts
+bin/
+obj/
+out/
+output/
+artifacts/
+packages/
+*.exe
+*.dll
+*.so
+*.dylib
+*.pdb
+*.user
+*.suo
+*.cache
+*.pidb
+*.log
+*.tlb
+*.tlh
+*.tmp
+*.tmp_proj
+*.lkg
+*.ilk
+*.meta
+*.iobj
+*.ipdb
+*.vcxproj
+*.vcxproj.filters
+
+## Test results
+TestResults/
+*.coverage
+*.coveragexml
+*.trx
+*.testlog
+*.junit.xml
+*.html
+*.xml
+*.received.*
+*.verified.*
+*.actual.*
+*.snapshot
+__snapshots__/
+
+## Coverage reports
+coverage/
+coverage.*
+*.coverdata
+*.coverlet
+*.visualstudio.coverage
+*.htmlcov
+.coverage
+.coverage.xml
+*.pyc
+coverage.json
+lcov.info
+opencover.xml
+
+## Benchmark results
+BenchmarkDotNet.Artifacts/
+*.benchmarkresults
+
+# =====================
+# IDE and Editors
+# =====================
+
+## Visual Studio / VS Code
+.vs/
+.vscode/
+.idea/
+*.csproj.user
+*.suo
+*.sln.docstates
+*.sln.ide
+*.userprefs
+*.dbmdl
+*.dbproj.schemaview
+*.jfm
+*.pfx
+*.publishsettings
+orleans.codegen.cs
+*.dotSettings
+*.dotSettings.user
+.vsconfig
+
+## Rider
+.idea/
+*.sln.iml
+*.DotSettings.user
+
+## Visual Studio Code
+.history/
+*.code-workspace
+*.code-search
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/extensions.json
+
+## Cursor editor
+.cursor/
+.cursorindex/
+.cursorignore
+.history/
+
+## Cline (AI coding assistant)
+.cline/
+.clinerules
+cline_docs/
+*.cline.md
+
+# =====================
+# Database
+# =====================
+
+## SQLite
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.sdb
+*.s3db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlitedb
+PalloncinoDB.sqlite
+PalloncinoDB.db
+
+## EF Core Migrations (optional - uncomment if you want to ignore migrations)
+# Migrations/
+# */Migrations/
+
+## SQL Server
+*.mdf
+*.ldf
+*.ndf
+*.bak
+*.trn
+*.log
+
+## PostgreSQL
+*.pgdump
+*.backup
+
+## MySQL
+*.ibd
+*.frm
+*.myd
+*.myi
+
+# =====================
+# Uploads and Files
+# =====================
+
+## User uploads
+Uploads/
+uploads/
+wwwroot/uploads/
+wwwroot/images/
+wwwroot/files/
+static/uploads/
+media/
+
+## Temp files
+temp/
+tmp/
+temp_*
+*.temp
+*.tmp
+
+## Logs
+logs/
+Logs/
+*.log
+*.logs
+*.txt
+serilog-*.txt
+nlog-*.txt
+log-*.txt
+*.log.txt
+_logs/
+
+## Generated PDFs
+*.pdf
+Quotations/
+Quotations/*.pdf
+TempPDFs/
+
+# =====================
+# Secrets and Configuration
+# =====================
+
+## App secrets
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+*.secrets.json
+*secrets*.json
+secrets.json
+secrets.*.json
+*.local.json
+*.local.config
+
+## Environment variables
+.env
+.env.*
+!.env.example
+.envrc
+*.envrc
+
+## JWT keys
+*.pem
+*.key
+*.cert
+*.pfx
+*.crt
+*.p12
+jwt.key
+jwt.pub
+private.key
+public.key
+*.jwk
+
+## Firebase/Google credentials
+firebase*.json
+*.google.json
+service-account*.json
+*credential*.json
+*.p12
+*.p8
+GoogleAuth/
+
+## API keys
+*.apikey
+*.apikeys
+api-keys.txt
+*.secret
+
+# =====================
+# Dependencies
+# =====================
+
+## NuGet
+packages/
+*.nupkg
+*.nupkg.metadata
+*.snupkg
+*.symbols.nupkg
+nuget.config
+.nuget/
+NuGet/
+NuGet.Config
+nuget.exe
+_ReSharper.Caches/
+[Bb]in/
+[Oo]bj/
+[Ll]ib/
+
+## Node.js (if using any build tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# =====================
+# OS Generated
+# =====================
+
+## Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+## macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+*.AppleDouble
+*.LSOverride
+Icon
+._*
+.AppleDouble
+.AppleDB
+.AppleDesktop
+*.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+## Linux
+*~
+.directory
+*.swp
+*.swo
+*.swn
+*.swm
+*.swx
+*.swpx
+*.swo~
+.sass-cache/
+
+# =====================
+# Docker and Containers
+# =====================
+
+*.dockerignore
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+Dockerfile*
+.docker/
+.dockerignore
+*.container.log
+*.container.runtimeconfig.json
+*.container.deps.json
+
+# =====================
+# User-specific files
+# =====================
+
+*.rsuser
+*.userosscache
+*.sln.ide
+*.user
+*.suo
+*.userprefs
+profiler.ptprof
+*.pidb
+*.booproj
+*.svclog
+*.csx
+*.loadtest
+*.psess
+*.vsp
+*.ncrunchsolution
+*.ncrunchproject
+*.ncrunch
+
+# =====================
+# Azure / Cloud
+# =====================
+
+*.azure/
+azure/
+AzureFunctions/
+__azurite_db*__.json
+__blobstorage__
+__queuestorage__
+local.settings.json
+*.pubxml.user
+*.publishproj
+
+# =====================
+# Project specific
+# =====================
+
+## Palloncino specific
+firebase-admin-sdk.json
+firebase-adminsdk.json
+*.FirebaseAdmin.json
+ServiceAccountKey.json
+certificate.p12
+
+## Migration temp files
+*_Migration.cs.tmp
+migration-backup/
+ef-schema-*.sql
+
+## Profiling
+*.profiling
+*.profiling.json
+*.speedscope.json
+*.trace
+*.perfview.zip
+*.diagsession
+
+## Health check temp files
+healthchecksdb
+healthchecks-*
+
+## Hangfire
+hangfire.db
+hangfire/
+Hangfire*.sqlite
+
+## Redis
+dump.rdb
+appendonly.aof
+*.rdb
+*.aof
+
+# =====================
+# Build outputs
+# =====================
+
+*.nupkg
+*.snupkg
+*.symbols.nupkg
+*.metaproj
+*.metaproj.tmp
+*.backup
+*.bim
+*.bim.layout
+*.bim_*settings
+*.rdl.data
+*.rdl.config
+*.rds
+*.rsuser
+*.vspscc
+*.vssscc
+._*
+*.resharper
+*.dbproj.schemaview
+*.psess
+*.vspx
+*.sap
+*.tmp
+*.tmp_proj
+*.loadtest
+*.jfm
+*.wip
+*.build.csdef
+*.build.ccproj
+*.azurePubxml
+*.nuget.props
+*.nuget.targets
+
+# =====================
+# Miscellaneous
+# =====================
+
+*.pid
+*.seed
+*.pid.lock
+*.sock
+*.socket
+*.stamp
+*.stamp.*
+*.sha256
+*.sha512
+*.hash
+*.lock
+*.lock.json
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.cache
+*.cache.json
+*.tsbuildinfo
+*.iml
+*.classpath
+*.project
+*.settings/
+.factorypath
+
+# =====================
+# Backup files
+# =====================
+
+*.bak
+*.backup
+*.old
+*.orig
+*.original
+*.rej
+*.patch
+*.diff
+*.swp
+*.swo
+*~
+*.~lock.*
+
+# =====================
+# Archive files
+# =====================
+
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.tgz
+*.bz2
+*.xz
+*.iso
+
+# =====================
+# Debug and crash reports
+# =====================
+
+*.crash
+*.crashreport
+*.dmp
+*.dump
+*.hdmp
+*.mdmp
+*.stackdump
+*.wer
+*.error
+*.error.log
+core
+core.*
+
+# =====================
+# Global tools
+# =====================
+
+*.tool
+*.tool.lock
+.tools/
+tools/
+.dotnet-tools.json
+
+# =====================
+# Secret scanning exclusions (if using security tools)
+# =====================
+
+.gitleaks/
+.trivy/
+.snyk
+.nyc_output/
+dependency-check-report.*
+owasp-dependency-check-*.xml
+veracode/
+fortify/
+
+# =====================
+# Documentation
+# =====================
+
+# Generated docs
+docs/_build/
+docs/api/
+docs/obj/
+docs/output/
+docs/_site/
+Documentation/_site/
+Documentation/api/
+Documentation/obj/
+*.chm
+*.epub
+*.mobi
+
+# Exclude but keep example
+!.env.example
+!.gitkeep
+!.gitignore.example
