@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Palloncino.Models.Entities;
 using Palloncino.Models.Enums;
 
-namespace PalloncinoAPI.Data
+namespace Palloncino.Data
 {
     public class ApplicationDbContext : DbContext
     {
