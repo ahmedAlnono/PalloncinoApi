@@ -21,12 +21,15 @@ public class AuthService(
         if (!passwordHasher.VerifyPassword(loginDto.Password, user.PasswordHash))
             throw new Exception("Wrong Password");
 
-        var token = tokenService.GenerateToken(user.Role.ToString(), user);
+        var token = tokenService.GenerateTokens(user);
+
+        user.RefreshToken = token.RefreshToken;
+        user.RefreshTokenExpiry = DateTime.Now.AddMonths(1);
         logger.LogInformation("use logged in with email {}", user.Email);
         return new AuthResponseDto
         {
-            Token = token,
-
+            Token = token.AccessToken,
+            RefreshToken = token.RefreshToken
         };
     }
 
