@@ -1,10 +1,14 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Palloncino.Data;
+using Palloncino.Helpers;
+using Palloncino.Services.Implementations;
+using Palloncino.Services.Interfaces;
 using Serilog;
 
 
@@ -142,7 +146,9 @@ builder.Services.AddAuthorizationBuilder()
 
 
 // ========== 6. Register Custom Services ==========
-// builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 // builder.Services.AddScoped<IJobOrderService, JobOrderService>();
 // builder.Services.AddScoped<INotificationService, NotificationService>();
 // builder.Services.AddScoped<IReportService, ReportService>();

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Palloncino.Models.Enums;
 
 namespace Palloncino.Models.Entities;
@@ -5,8 +6,11 @@ public class Attachment : BaseEntity
 {
     // Properties
     public string? FileName { get; set; }
+    [Required]
     public string? FileUrl { get; set; }
     public string? FileType { get; set; } // image/jpeg, image/png, etc.
+    [Required]
+    [Range(0,10*1024*1024)]
     public long FileSize { get; set; } // in bytes
     public int UploadedBy { get; set; }
     public AttachmentType Type { get; set; } // Order, Task, Design, Checklist
