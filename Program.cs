@@ -162,15 +162,15 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<IJobOrderService, JobOrderService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
-
-// builder.Services.AddScoped<IJobOrderService, JobOrderService>();
-// builder.Services.AddScoped<INotificationService, NotificationService>();
 // builder.Services.AddScoped<IReportService, ReportService>();
 // builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
-// builder.Services.AddScoped<IInventoryService, InventoryService>();
 // builder.Services.AddScoped<IOrderService, OrderService>();
-// builder.Services.AddScoped<ITaskService, TaskService>();
 // builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 
 builder.Services.AddCors(options =>

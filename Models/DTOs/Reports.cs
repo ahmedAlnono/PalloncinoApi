@@ -7,7 +7,7 @@ namespace Palloncino.Models.DTOs
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
     }
-    
+
     public class ProfitReportDto
     {
         public DateTime StartDate { get; set; }
@@ -23,7 +23,7 @@ namespace Palloncino.Models.DTOs
         public List<ProfitByBranchDto> ByBranch { get; set; } = new();
         public List<ProfitByDayDto> ByDay { get; set; } = new();
     }
-    
+
     public class ProfitByBranchDto
     {
         public string BranchName { get; set; } = "";
@@ -32,7 +32,7 @@ namespace Palloncino.Models.DTOs
         public decimal Cost { get; set; }
         public decimal Profit { get; set; }
     }
-    
+
     public class ProfitByDayDto
     {
         public DateTime Date { get; set; }
@@ -40,7 +40,7 @@ namespace Palloncino.Models.DTOs
         public decimal Revenue { get; set; }
         public decimal Profit { get; set; }
     }
-    
+
     public class EmployeePerformanceReportDto
     {
         public int EmployeeId { get; set; }
@@ -53,16 +53,15 @@ namespace Palloncino.Models.DTOs
         public decimal CompletionRate { get; set; }
         public double AverageCompletionTimeHours { get; set; }
     }
-    
+
     public class InventoryReportDto
     {
-        public int TotalItems { get; set; }
-        public int LowStockItems { get; set; }
-        public int OutOfStockItems { get; set; }
-        public decimal TotalStockValue { get; set; }
-        public List<InventoryItemReportDto> Items { get; set; } = new();
+        public DateTime GeneratedAt { get; set; }
+        public int? BranchId { get; set; }
+        public string? BranchName { get; set; }
+        public List<InventoryItemReport> Items { get; set; } = new();
+        public InventoryStatisticsDto Summary { get; set; } = new();
     }
-    
     public class InventoryItemReportDto
     {
         public int Id { get; set; }
@@ -74,29 +73,32 @@ namespace Palloncino.Models.DTOs
         public decimal PurchasePrice { get; set; }
         public decimal StockValue { get; set; }
     }
-    
+
     public class JobOrderReportDto
     {
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public int TotalJobOrders { get; set; }
-        public int Completed { get; set; }
-        public int InProgress { get; set; }
-        public int Overdue { get; set; }
-        public int Cancelled { get; set; }
-        public decimal AverageCompletionTimeHours { get; set; }
+        public int CompletedOrders { get; set; }
+        public int CancelledOrders { get; set; }
+        public int OverdueOrders { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCost { get; set; }
+        public decimal TotalProfit { get; set; }
+        public decimal AverageProfitPerOrder { get; set; }
         public List<JobOrderSummaryDto> JobOrders { get; set; } = new();
     }
-    
+
     public class JobOrderSummaryDto
     {
         public int Id { get; set; }
-        public string JobNumber { get; set; } = "";
+        public string JobNumber { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime DueAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public JobOrderStatus Status { get; set; }
-        public ExecutionType ExecutionType { get; set; }
-        public string BranchName { get; set; } = "";
-        public string CustomerName { get; set; } = "";
+        public string BranchName { get; set; } = string.Empty;
+        public string? CustomerName { get; set; }
         public decimal Revenue { get; set; }
         public decimal Cost { get; set; }
         public decimal Profit { get; set; }
