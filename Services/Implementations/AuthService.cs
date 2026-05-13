@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Palloncino.Data;
-using Palloncino.Helpers;
 using Palloncino.Models.DTOs;
 using Palloncino.Services.Interfaces;
 
@@ -9,7 +8,6 @@ namespace Palloncino.Services.Implementations;
 public class AuthService(
     ApplicationDbContext context,
     ILogger<AuthService> logger,
-    IPasswordHasher passwordHasher,
     ITokenService tokenService
 ) : IAuthService
 {
@@ -18,7 +16,7 @@ public class AuthService(
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email)
         ?? throw new Exception("user not found");
 
-        if (!passwordHasher.VerifyPassword(loginDto.Password, user.PasswordHash))
+        if (BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
             throw new Exception("Wrong Password");
 
         var token = tokenService.GenerateTokens(user);

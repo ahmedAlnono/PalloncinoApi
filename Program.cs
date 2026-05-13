@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Palloncino.Data;
-using Palloncino.Helpers;
 using Palloncino.Services.Implementations;
 using Palloncino.Services.Interfaces;
 using Palloncino.Mappers;
@@ -158,7 +157,6 @@ builder.Services.AddAuthorizationBuilder()
 
 
 // ========== 6. Register Custom Services ==========
-builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();

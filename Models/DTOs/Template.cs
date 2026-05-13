@@ -75,6 +75,18 @@ public class TemplateDto : BaseDto
     public List<TemplateItemDto> Items { get; set; } = new();
 }
 
+public class UpdateTemplateDto
+{
+    public string Title { get; set; } = "";
+    public string? Description { get; set; }
+    public decimal? BeforeDiscount { get; set; }
+    public decimal? AfterDiscount { get; set; }
+    public decimal? DiscountPercentage { get; set; }
+    public string? ImageUrl { get; set; }
+    public string? Category { get; set; } = "";
+    public List<TemplateItemDto>? Items { get; set; }
+}
+
 public class TemplateItemDto
 {
     public int CatalogItemId { get; set; }
@@ -85,3 +97,13 @@ public class TemplateItemDto
     public decimal TotalPrice { get; set; }
 }
 
+public class DuplicateTemplateRequest
+{
+    public string NewName { get; set; } = string.Empty;
+}
+
+public class AddTemplateItemRequest
+{
+    public int CatalogItemId { get; set; }
+    public int Quantity { get; set; } = 1;
+}

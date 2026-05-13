@@ -1,12 +1,14 @@
-using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
+using FirebaseAdmin.Auth.Hash;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Palloncino.Helpers;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Entities;
 using Palloncino.Models.Enums;
 using Palloncino.Services.Interfaces;
+using System.Security.Cryptography;
+using System.IdentityModel.Tokens.Jwt;
+
+
 
 namespace Palloncino.Controllers;
 
@@ -15,11 +17,12 @@ namespace Palloncino.Controllers;
 public class AuthController(
     IUserService userService,
     ITokenService tokenService,
-    IPasswordHasher passwordHasher,
+    IBranchService branchService,
     ILogger<AuthController> logger) : ControllerBase
 {
+    [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+    public async Task<IActionResult> Login(LoginRequestDto request)
     {
         var user = await userService.AuthenticateAsync(request.Email, request.Password);
 
@@ -141,7 +144,7 @@ public class AuthController(
             FullName = request.FullName,
             Email = request.Email,
             Phone = request.Phone,
-            PasswordHash = passwordHasher.HashPassword(request.Password),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = UserRole.Customer,  // Fixed: Always Customer
             Status = UserStatus.Active,
             CreatedAt = DateTime.UtcNow
@@ -162,54 +165,56 @@ public class AuthController(
     }
 
 
-    // [Authorize(Roles = "Admin")]
-    // [HttpPost("users/employee")]
-    // public async Task<IActionResult> CreateEmployee([FromBody] RegisterRequestDto request)
-    // {
-    //     // Validate branch exists
-    //     var branch = await branchService.GetByIdAsync(request.BranchId);
-    //     if (branch == null)
-    //         return BadRequest(new { message = "Branch not found" });
+    [Authorize(Roles = "Admin")]
+    [HttpPost("users/employee")]
+    public async Task<IActionResult> CreateEmployee([FromBody] RegisterRequestDto request)
+    {
+        // Validate branch exists
+        if (request.BranchId is null)
+        {
+            throw new Exception("Branch Id is Required");
+        }
+        var branch = await branchService.GetBranchByIdAsync((int)request.BranchId);
+        if (branch == null)
+            return BadRequest(new { message = "Branch not found" });
 
-    //     // Create employee
-    //     var user = new User
-    //     {
-    //         FullName = request.FullName,
-    //         Email = request.Email,
-    //         Phone = request.Phone,
-    //         PasswordHash = passwordHasher.HashPassword(request.Password),
-    //         Role = UserRole.Employee,  // Fixed: Employee
-    //         BranchId = request.BranchId,
-    //         Status = UserStatus.Active,
-    //         CreatedAt = DateTime.UtcNow,
-    //         CreatedBy = GetCurrentUserId()
-    //     };
+        // Create employee
+        var user = new User
+        {
+            FullName = request.FullName,
+            Email = request.Email,
+            Phone = request.Phone,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = UserRole.Employee,  // Fixed: Employee
+            BranchId = request.BranchId,
+            Status = UserStatus.Active,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = GetCurrentUserId()
+        };
 
-    //     await userService.CreateUserAsync(user);
+        // await userService.CreateUserAsync(user);
+        await userService.CreateStaffUserAsync(user, user.Role, (int)user.CreatedBy);
 
-    //     // Send welcome email/notification
-    //     await _notificationService.SendWelcomeNotification(user);
+        // Send welcome email/notification
+        // await notificationService.SendWelcomeNotification(user);
 
-    //     return Ok(new
-    //     {
-    //         message = "Employee created successfully",
-    //         user = new { user.Id, user.FullName, user.Email, user.Role, user.BranchId }
-    //     });
-    // }
+        return Ok(new
+        {
+            message = "Employee created successfully",
+            user = new { user.Id, user.FullName, user.Email, user.Role, user.BranchId }
+        });
+    }
     
     
     [HttpGet("test")]
     public ActionResult Test()
     {
-        return Ok(GetCurrentUserId(User));
+        return Ok(GetCurrentUserId());
     }
-    private int GetCurrentUserId(ClaimsPrincipal user)
+    private int GetCurrentUserId()
     {
-        string? id = user.Claims.FirstOrDefault(u => u.Type == "sub")?.Value;
-        if(id == null)
-        {
-            throw new Exception("Id not found");
-        }
-            return int.Parse(id);
+        string? id = (User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value) 
+        ?? throw new Exception("Id not found");
+        return int.Parse(id);
     }
 }

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Palloncino.Data;
-using Palloncino.Helpers;
 using Palloncino.Models.Entities;
 using Palloncino.Models.Enums;
 using Palloncino.Services.Interfaces;
@@ -9,8 +8,7 @@ namespace Palloncino.Services.Implementations;
 
 public class UserService(
     ApplicationDbContext context,
-    ILogger<UserService> logger,
-    IPasswordHasher passwordHasher) : IUserService
+    ILogger<UserService> logger) : IUserService
 {
 
     // ========== Authentication & Registration ==========
@@ -18,7 +16,6 @@ public class UserService(
     public async Task<User?> AuthenticateAsync(string email, string password)
     {
         var user = await context.Users
-            .Include(u => u.Branch)
             .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted);
 
         if (user == null)
@@ -36,7 +33,7 @@ public class UserService(
 
         user.Role = UserRole.Customer;
         user.Status = UserStatus.Active;
-        user.PasswordHash = passwordHasher.HashPassword(user.PasswordHash);
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
         user.CreatedAt = DateTime.UtcNow;
 
         context.Users.Add(user);
@@ -47,7 +44,7 @@ public class UserService(
 
     public async Task<bool> ValidatePasswordAsync(User user, string password)
     {
-        return passwordHasher.VerifyPassword(password, user.PasswordHash);
+        return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
     }
 
     public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
@@ -59,7 +56,7 @@ public class UserService(
         if (!await ValidatePasswordAsync(user, currentPassword))
             return false;
 
-        user.PasswordHash = passwordHasher.HashPassword(newPassword);
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         user.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
@@ -81,7 +78,7 @@ public class UserService(
         // Assign role and status
         user.Role = role;
         user.Status = UserStatus.Active;
-        user.PasswordHash = passwordHasher.HashPassword(user.PasswordHash);
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
         user.CreatedAt = DateTime.UtcNow;
         user.CreatedBy = createdBy;
 
@@ -116,7 +113,7 @@ public class UserService(
         // If password is provided, hash it
         if (!string.IsNullOrEmpty(user.PasswordHash) && user.PasswordHash != existingUser.PasswordHash)
         {
-            existingUser.PasswordHash = passwordHasher.HashPassword(user.PasswordHash);
+            existingUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
         }
 
         await context.SaveChangesAsync();

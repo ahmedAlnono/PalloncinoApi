@@ -226,17 +226,9 @@ public class TemplateController(
     
     private int GetCurrentUserId()
     {
-        return int.Parse(User.FindFirst("userId")?.Value ?? "0");
+        string? id = (User.FindFirst(u => u.Type == "sub")?.Value) 
+        ?? throw new Exception("Id not found");
+        return int.Parse(id);
     }
 }
 
-public class DuplicateTemplateRequest
-{
-    public string NewName { get; set; } = string.Empty;
-}
-
-public class AddTemplateItemRequest
-{
-    public int CatalogItemId { get; set; }
-    public int Quantity { get; set; } = 1;
-}
