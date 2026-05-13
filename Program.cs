@@ -158,10 +158,13 @@ builder.Services.AddAuthorizationBuilder()
 
 
 // ========== 6. Register Custom Services ==========
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+
 
 // builder.Services.AddScoped<IJobOrderService, JobOrderService>();
 // builder.Services.AddScoped<INotificationService, NotificationService>();
