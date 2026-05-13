@@ -9,6 +9,7 @@ using Palloncino.Data;
 using Palloncino.Helpers;
 using Palloncino.Services.Implementations;
 using Palloncino.Services.Interfaces;
+using Palloncino.Mappers;
 using Serilog;
 
 
@@ -198,7 +199,7 @@ builder.Services.AddResponseCaching();
 // ========== 9. Configure Memory Cache ==========
 builder.Services.AddMemoryCache();
 
-
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddRateLimiter(options =>
 {

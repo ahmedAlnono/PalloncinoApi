@@ -206,7 +206,7 @@ namespace Palloncino.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Action = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Action = table.Column<int>(type: "INTEGER", maxLength: 50, nullable: false),
                     EntityType = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     EntityId = table.Column<int>(type: "INTEGER", nullable: false),
                     OldValues = table.Column<string>(type: "TEXT", nullable: true),

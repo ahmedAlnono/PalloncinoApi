@@ -38,7 +38,7 @@ namespace Palloncino.Models.DTOs
         [Compare("Password")]
         public string ConfirmPassword { get; set; } = "";
 
-        public int BranchId { get; set; }
+        public int? BranchId { get; set; }
     }
 
     public class RefreshTokenRequestDto

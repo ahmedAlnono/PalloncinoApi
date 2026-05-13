@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Palloncino.Helpers;
@@ -132,7 +133,7 @@ public class AuthController(
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody]RegisterRequestDto  request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
         // Create new customer user
         var user = new User
@@ -161,4 +162,54 @@ public class AuthController(
     }
 
 
+    // [Authorize(Roles = "Admin")]
+    // [HttpPost("users/employee")]
+    // public async Task<IActionResult> CreateEmployee([FromBody] RegisterRequestDto request)
+    // {
+    //     // Validate branch exists
+    //     var branch = await branchService.GetByIdAsync(request.BranchId);
+    //     if (branch == null)
+    //         return BadRequest(new { message = "Branch not found" });
+
+    //     // Create employee
+    //     var user = new User
+    //     {
+    //         FullName = request.FullName,
+    //         Email = request.Email,
+    //         Phone = request.Phone,
+    //         PasswordHash = passwordHasher.HashPassword(request.Password),
+    //         Role = UserRole.Employee,  // Fixed: Employee
+    //         BranchId = request.BranchId,
+    //         Status = UserStatus.Active,
+    //         CreatedAt = DateTime.UtcNow,
+    //         CreatedBy = GetCurrentUserId()
+    //     };
+
+    //     await userService.CreateUserAsync(user);
+
+    //     // Send welcome email/notification
+    //     await _notificationService.SendWelcomeNotification(user);
+
+    //     return Ok(new
+    //     {
+    //         message = "Employee created successfully",
+    //         user = new { user.Id, user.FullName, user.Email, user.Role, user.BranchId }
+    //     });
+    // }
+    
+    
+    [HttpGet("test")]
+    public ActionResult Test()
+    {
+        return Ok(GetCurrentUserId(User));
+    }
+    private int GetCurrentUserId(ClaimsPrincipal user)
+    {
+        string? id = user.Claims.FirstOrDefault(u => u.Type == "sub")?.Value;
+        if(id == null)
+        {
+            throw new Exception("Id not found");
+        }
+            return int.Parse(id);
+    }
 }

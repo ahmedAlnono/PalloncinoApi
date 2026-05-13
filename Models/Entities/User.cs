@@ -10,7 +10,7 @@ public class User : BaseEntity
     public required string PasswordHash { get; set; }
     public required UserRole Role { get; set; } // Enum: Customer, Admin, Employee, Driver, Designer
     public string? ProfileImageUrl { get; set; }
-    public int BranchId { get; set; } // For internal staff
+    public int? BranchId { get; set; } // For internal staff
     public UserStatus Status { get; set; } // Active, Inactive, Suspended
     public DateTime? LastLoginAt { get; set; }
     public string? RefreshToken { get; set; }
