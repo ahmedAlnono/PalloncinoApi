@@ -22,7 +22,7 @@ namespace Palloncino.Models.Entities
         public int SenderId { get; set; }
         
         [MaxLength(2000)]
-        public string Message { get; set; } = string.Empty;
+        public string Message { get; set; } = "";
         
         [MaxLength(500)]
         public string? ImageUrl { get; set; }

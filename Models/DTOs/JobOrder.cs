@@ -64,21 +64,21 @@ namespace Palloncino.Models.DTOs
         
         [Required]
         [MaxLength(500)]
-        public string Reason { get; set; } = string.Empty;
+        public string Reason { get; set; } = "";
     }
     
     public class JobOrderDto : BaseDto
     {
-        public string JobNumber { get; set; } = string.Empty;
+        public string JobNumber { get; set; } = "";
         public int? SourceOrderId { get; set; }
         public string? OrderNumber { get; set; }
         public ExecutionType ExecutionType { get; set; }
         public JobOrderStatus Status { get; set; }
         public DateTime DueAt { get; set; }
         public double CountdownSeconds { get; set; } // BR-09
-        public string CountdownDisplay { get; set; } = string.Empty;
+        public string CountdownDisplay { get; set; } = "";
         public int BranchId { get; set; }
-        public string BranchName { get; set; } = string.Empty;
+        public string BranchName { get; set; } = "";
         public int? AssignedToCoordinator { get; set; }
         public string? CoordinatorName { get; set; }
         public string? SpecialInstructions { get; set; }
@@ -94,13 +94,13 @@ namespace Palloncino.Models.DTOs
     
     public class JobOrderListDto : BaseDto
     {
-        public string JobNumber { get; set; } = string.Empty;
+        public string JobNumber { get; set; } = "";
         public ExecutionType ExecutionType { get; set; }
         public JobOrderStatus Status { get; set; }
         public DateTime DueAt { get; set; }
         public double CountdownSeconds { get; set; }
-        public string CountdownDisplay { get; set; } = string.Empty;
-        public string BranchName { get; set; } = string.Empty;
+        public string CountdownDisplay { get; set; } = "";
+        public string BranchName { get; set; } = "";
         public string? CoordinatorName { get; set; }
         public int TaskCount { get; set; }
         public int CompletedTaskCount { get; set; }
@@ -156,10 +156,10 @@ namespace Palloncino.Models.DTOs
     {
         public int JobOrderId { get; set; }
         public int InventoryItemId { get; set; }
-        public string ItemName { get; set; } = string.Empty;
+        public string ItemName { get; set; } = "";
         public string? Sku { get; set; }
         public int QuantityUsed { get; set; }
-        public string Unit { get; set; } = string.Empty;
+        public string Unit { get; set; } = "";
         public decimal CostPerUnit { get; set; }
         public decimal TotalCost { get; set; }
         public decimal? SellingPricePerUnit { get; set; }
@@ -188,7 +188,7 @@ namespace Palloncino.Models.DTOs
         
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         
         [MaxLength(1000)]
         public string? Description { get; set; }
@@ -204,7 +204,7 @@ namespace Palloncino.Models.DTOs
     {
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         
         [MaxLength(500)]
         public string? Description { get; set; }
@@ -245,9 +245,9 @@ namespace Palloncino.Models.DTOs
     public class TaskDto : BaseDto
     {
         public int JobOrderId { get; set; }
-        public string JobNumber { get; set; } = string.Empty;
+        public string JobNumber { get; set; } = "";
         public TaskType Type { get; set; }
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         public string? Description { get; set; }
         public int? AssignedTo { get; set; }
         public string? AssignedToName { get; set; }
@@ -265,7 +265,7 @@ namespace Palloncino.Models.DTOs
     public class SubTaskDto : BaseDto
     {
         public int TaskId { get; set; }
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         public string? Description { get; set; }
         public bool IsCompleted { get; set; }
         public int? CompletedBy { get; set; }
@@ -292,7 +292,7 @@ namespace Palloncino.Models.DTOs
         public int Id { get; set; }
         public int TaskId { get; set; }
         public ChecklistPhase Phase { get; set; }
-        public string ItemName { get; set; } = string.Empty;
+        public string ItemName { get; set; } = "";
         public bool IsChecked { get; set; }
         public int? CheckedBy { get; set; }
         public string? CheckedByName { get; set; }
@@ -303,11 +303,11 @@ namespace Palloncino.Models.DTOs
     public class DriverDeliveryListDto
     {
         public int JobOrderId { get; set; }
-        public string JobNumber { get; set; } = string.Empty;
-        public string DeliveryAddress { get; set; } = string.Empty;
+        public string JobNumber { get; set; } = "";
+        public string DeliveryAddress { get; set; } = "";
         public DateTime DueAt { get; set; }
-        public string CustomerName { get; set; } = string.Empty;
-        public string CustomerPhone { get; set; } = string.Empty;
+        public string CustomerName { get; set; } = "";
+        public string CustomerPhone { get; set; } = "";
         public ExecutionType ExecutionType { get; set; }
         public JobOrderStatus Status { get; set; }
         public List<string> ItemsSummary { get; set; } = new();

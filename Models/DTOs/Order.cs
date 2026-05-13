@@ -50,8 +50,8 @@ namespace Palloncino.Models.DTOs
     public class OrderDto : BaseDto
     {
         public int CustomerId { get; set; }
-        public string CustomerName { get; set; } = string.Empty;
-        public string CustomerPhone { get; set; } = string.Empty;
+        public string CustomerName { get; set; } = "";
+        public string CustomerPhone { get; set; } = "";
         public OrderType Type { get; set; }
         public OrderSource Source { get; set; }
         public OrderStatus Status { get; set; }
@@ -71,7 +71,7 @@ namespace Palloncino.Models.DTOs
     {
         public int Id { get; set; }
         public int? CatalogItemId { get; set; }
-        public string ItemName { get; set; } = string.Empty;
+        public string ItemName { get; set; } = "";
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
@@ -96,7 +96,7 @@ namespace Palloncino.Models.DTOs
     public class CreateQuotationItemDto
     {
         [MaxLength(200)]
-        public string ItemName { get; set; } = string.Empty;
+        public string ItemName { get; set; } = "";
         
         [MaxLength(500)]
         public string? Description { get; set; }
@@ -126,7 +126,7 @@ namespace Palloncino.Models.DTOs
     public class QuotationDto : BaseDto
     {
         public int OrderId { get; set; }
-        public string QuotationNumber { get; set; } = string.Empty;
+        public string QuotationNumber { get; set; } = "";
         public decimal TotalAmount { get; set; }
         public string? Notes { get; set; }
         public QuotationStatus Status { get; set; }
@@ -137,7 +137,7 @@ namespace Palloncino.Models.DTOs
     public class QuotationItemDto
     {
         public int Id { get; set; }
-        public string ItemName { get; set; } = string.Empty;
+        public string ItemName { get; set; } = "";
         public string? Description { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
@@ -152,10 +152,10 @@ namespace Palloncino.Models.DTOs
     public class QuotationPrintDto
     {
         public string CompanyName { get; set; } = "Palloncino";
-        public string CompanyLogo { get; set; } = string.Empty;
-        public string CompanyAddress { get; set; } = string.Empty;
-        public string CompanyPhone { get; set; } = string.Empty;
-        public string CompanyEmail { get; set; } = string.Empty;
+        public string CompanyLogo { get; set; } = "";
+        public string CompanyAddress { get; set; } = "";
+        public string CompanyPhone { get; set; } = "";
+        public string CompanyEmail { get; set; } = "";
         
         public QuotationDto Quotation { get; set; } = null!;
         public OrderDto Order { get; set; } = null!;

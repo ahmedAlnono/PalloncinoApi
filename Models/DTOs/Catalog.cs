@@ -9,14 +9,14 @@ namespace Palloncino.Models.DTOs
     {
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         
         [MaxLength(1000)]
         public string? Description { get; set; }
         
         [Required]
         [MaxLength(100)]
-        public string Category { get; set; } = string.Empty;
+        public string Category { get; set; } = "";
         
         [Required]
         [Range(0.01, 999999.99)]
@@ -61,9 +61,9 @@ namespace Palloncino.Models.DTOs
     
     public class CatalogItemDto : BaseDto
     {
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         public string? Description { get; set; }
-        public string Category { get; set; } = string.Empty;
+        public string Category { get; set; } = "";
         public decimal Price { get; set; }
         public bool IsRental { get; set; }
         public string? ImageUrl { get; set; }
@@ -78,7 +78,7 @@ namespace Palloncino.Models.DTOs
     {
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         
         [MaxLength(1000)]
         public string? Description { get; set; }
@@ -95,7 +95,7 @@ namespace Palloncino.Models.DTOs
         
         [Required]
         [MaxLength(100)]
-        public string Category { get; set; } = string.Empty;
+        public string Category { get; set; } = "";
         
         public List<CreateTemplateItemDto> Items { get; set; } = new();
     }
@@ -112,20 +112,20 @@ namespace Palloncino.Models.DTOs
     
     public class TemplateDto : BaseDto
     {
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         public string? Description { get; set; }
         public decimal BeforeDiscount { get; set; }
         public decimal AfterDiscount { get; set; }
         public decimal DiscountPercentage { get; set; }
         public string? ImageUrl { get; set; }
-        public string Category { get; set; } = string.Empty;
+        public string Category { get; set; } = "";
         public List<TemplateItemDto> Items { get; set; } = new();
     }
     
     public class TemplateItemDto
     {
         public int CatalogItemId { get; set; }
-        public string ItemTitle { get; set; } = string.Empty;
+        public string ItemTitle { get; set; } = "";
         public string? ItemImageUrl { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }

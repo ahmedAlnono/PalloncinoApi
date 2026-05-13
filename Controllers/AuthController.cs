@@ -63,7 +63,7 @@ public class AuthController(
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
     {
         // Get principal from expired token
         var principal = tokenService.GetPrincipalFromExpiredToken(request.AccessToken);
@@ -117,7 +117,7 @@ public class AuthController(
 
     [Authorize]
     [HttpPost("change-password")]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
     {
         var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
         var result = await userService.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
@@ -132,7 +132,7 @@ public class AuthController(
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] CustomerRegisterDto request)
+    public async Task<IActionResult> Register([FromBody]RegisterRequestDto  request)
     {
         // Create new customer user
         var user = new User
@@ -160,33 +160,5 @@ public class AuthController(
         });
     }
 
-    // DTO
-    public class CustomerRegisterDto
-    {
-        [Required]
-        public string FullName { get; set; } = "";
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = "";
-
-        [Required]
-        [Phone]
-        public string Phone { get; set; } = "";
-
-        [Required]
-        [MinLength(6)]
-        public string Password { get; set; } = "";
-    }
-    public class RefreshTokenRequest
-    {
-        public string AccessToken { get; set; } = string.Empty;
-        public string RefreshToken { get; set; } = string.Empty;
-    }
-
-    public class ChangePasswordRequest
-    {
-        public string CurrentPassword { get; set; } = string.Empty;
-        public string NewPassword { get; set; } = string.Empty;
-    }
 }

@@ -26,7 +26,7 @@ namespace Palloncino.Models.DTOs
     
     public class ProfitByBranchDto
     {
-        public string BranchName { get; set; } = string.Empty;
+        public string BranchName { get; set; } = "";
         public int JobOrderCount { get; set; }
         public decimal Revenue { get; set; }
         public decimal Cost { get; set; }
@@ -44,7 +44,7 @@ namespace Palloncino.Models.DTOs
     public class EmployeePerformanceReportDto
     {
         public int EmployeeId { get; set; }
-        public string EmployeeName { get; set; } = string.Empty;
+        public string EmployeeName { get; set; } = "";
         public UserRole Role { get; set; }
         public int AssignedTasks { get; set; }
         public int CompletedTasks { get; set; }
@@ -66,11 +66,11 @@ namespace Palloncino.Models.DTOs
     public class InventoryItemReportDto
     {
         public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Sku { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
+        public string Sku { get; set; } = "";
         public int CurrentStock { get; set; }
         public int MinStockLevel { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public string Status { get; set; } = "";
         public decimal PurchasePrice { get; set; }
         public decimal StockValue { get; set; }
     }
@@ -89,14 +89,14 @@ namespace Palloncino.Models.DTOs
     public class JobOrderSummaryDto
     {
         public int Id { get; set; }
-        public string JobNumber { get; set; } = string.Empty;
+        public string JobNumber { get; set; } = "";
         public DateTime CreatedAt { get; set; }
         public DateTime DueAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public JobOrderStatus Status { get; set; }
         public ExecutionType ExecutionType { get; set; }
-        public string BranchName { get; set; } = string.Empty;
-        public string CustomerName { get; set; } = string.Empty;
+        public string BranchName { get; set; } = "";
+        public string CustomerName { get; set; } = "";
         public decimal Revenue { get; set; }
         public decimal Cost { get; set; }
         public decimal Profit { get; set; }

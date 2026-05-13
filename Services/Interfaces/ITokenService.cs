@@ -14,12 +14,12 @@ public interface ITokenService
 // ========== Response DTO ==========
 public class TokenResponse
 {
-    public string AccessToken { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
+    public string AccessToken { get; set; } = "";
+    public string RefreshToken { get; set; } = "";
     public int ExpiresIn { get; set; } // seconds
     public string TokenType { get; set; } = "Bearer";
     public int UserId { get; set; }
-    public string UserName { get; set; } = string.Empty;
-    public string UserEmail { get; set; } = string.Empty;
-    public string UserRole { get; set; } = string.Empty;
+    public string UserName { get; set; } = "";
+    public string UserEmail { get; set; } = "";
+    public string UserRole { get; set; } = "";
 }

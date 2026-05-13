@@ -12,11 +12,11 @@ namespace Palloncino.Models.DTOs
         
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         
         [Required]
         [MaxLength(1000)]
-        public string Body { get; set; } = string.Empty;
+        public string Body { get; set; } = "";
         
         public NotificationType Type { get; set; } = NotificationType.General;
         
@@ -31,11 +31,11 @@ namespace Palloncino.Models.DTOs
     {
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         
         [Required]
         [MaxLength(1000)]
-        public string Body { get; set; } = string.Empty;
+        public string Body { get; set; } = "";
         
         public NotificationType Type { get; set; } = NotificationType.General;
         
@@ -47,8 +47,8 @@ namespace Palloncino.Models.DTOs
     public class NotificationDto : BaseDto
     {
         public int RecipientId { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Body { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
+        public string Body { get; set; } = "";
         public NotificationType Type { get; set; }
         public string? ImageUrl { get; set; }
         public int? RelatedEntityId { get; set; }
@@ -80,7 +80,7 @@ namespace Palloncino.Models.DTOs
         public ChatRoomType RoomType { get; set; }
         public int? RoomId { get; set; }
         public int SenderId { get; set; }
-        public string SenderName { get; set; } = string.Empty;
+        public string SenderName { get; set; } = "";
         public string? SenderImageUrl { get; set; }
         public string? Message { get; set; }
         public string? ImageUrl { get; set; }

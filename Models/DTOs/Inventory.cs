@@ -9,11 +9,11 @@ namespace Palloncino.Models.DTOs
     {
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
         
         [Required]
         [MaxLength(50)]
-        public string Sku { get; set; } = string.Empty;
+        public string Sku { get; set; } = "";
         
         [Required]
         [Range(0, 999999.99)]
@@ -74,12 +74,12 @@ namespace Palloncino.Models.DTOs
     
     public class InventoryItemDto : BaseDto
     {
-        public string Title { get; set; } = string.Empty;
-        public string Sku { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
+        public string Sku { get; set; } = "";
         public decimal PurchasePrice { get; set; }
         public decimal SalePrice { get; set; }
         public int Quantity { get; set; }
-        public string Unit { get; set; } = string.Empty;
+        public string Unit { get; set; } = "";
         public int? BranchId { get; set; }
         public string? BranchName { get; set; }
         public int? MinStockLevel { get; set; }
@@ -93,11 +93,11 @@ namespace Palloncino.Models.DTOs
     public class InventoryMovementDto : BaseDto
     {
         public int InventoryItemId { get; set; }
-        public string ItemName { get; set; } = string.Empty;
+        public string ItemName { get; set; } = "";
         public MovementType Type { get; set; }
         public int Quantity { get; set; }
         public int? RelatedJobOrderId { get; set; }
         public string? Reason { get; set; }
-        public string PerformedByName { get; set; } = string.Empty;
+        public string PerformedByName { get; set; } = "";
     }
 }

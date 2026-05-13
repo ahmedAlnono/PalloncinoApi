@@ -40,7 +40,7 @@ namespace Palloncino.Models.Entities
         /// </summary>
         [Required]
         [MaxLength(200)]
-        public string ItemName { get; set; } = string.Empty;
+        public string ItemName { get; set; } = "";
         
         /// <summary>
         /// SKU snapshot for traceability
@@ -308,7 +308,7 @@ namespace Palloncino.Models.Entities
             if (IsRental && DamageDeduction.HasValue && DamageDeduction.Value > (TotalSellingPrice ?? 0))
                 return (false, "Damage deduction cannot exceed selling price");
             
-            return (true, string.Empty);
+            return (true, "");
         }
         
         /// <summary>

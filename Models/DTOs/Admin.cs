@@ -9,11 +9,11 @@ namespace Palloncino.Models.DTOs
     {
         [Required]
         [MaxLength(100)]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = "";
         
         [Required]
         [MaxLength(500)]
-        public string Address { get; set; } = string.Empty;
+        public string Address { get; set; } = "";
         
         [Phone]
         [MaxLength(20)]
@@ -43,8 +43,8 @@ namespace Palloncino.Models.DTOs
     
     public class BranchDto : BaseDto
     {
-        public string Name { get; set; } = string.Empty;
-        public string Address { get; set; } = string.Empty;
+        public string Name { get; set; } = "";
+        public string Address { get; set; } = "";
         public string? Phone { get; set; }
         public string? ManagerName { get; set; }
         public BranchStatus Status { get; set; }
@@ -57,19 +57,19 @@ namespace Palloncino.Models.DTOs
     {
         [Required]
         [MaxLength(200)]
-        public string FullName { get; set; } = string.Empty;
+        public string FullName { get; set; } = "";
         
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } = "";
         
         [Required]
         [Phone]
-        public string Phone { get; set; } = string.Empty;
+        public string Phone { get; set; } = "";
         
         [Required]
         [MinLength(6)]
-        public string Password { get; set; } = string.Empty;
+        public string Password { get; set; } = "";
         
         [Required]
         public UserRole Role { get; set; }

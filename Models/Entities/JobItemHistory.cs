@@ -15,7 +15,7 @@ namespace Palloncino.Models.Entities
         
         [Required]
         [MaxLength(50)]
-        public string Action { get; set; } = string.Empty; // ADDED, UPDATED, RETURNED, DAMAGED, LOST
+        public string Action { get; set; } = ""; // ADDED, UPDATED, RETURNED, DAMAGED, LOST
         
         [Required]
         public int PerformedBy { get; set; }

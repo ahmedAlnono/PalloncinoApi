@@ -24,7 +24,7 @@ public class QuotationItem : BaseEntity
     
     [Required]
     [MaxLength(200)]
-    public string ItemName { get; set; } = string.Empty;
+    public string ItemName { get; set; } = "";
     
     [MaxLength(500)]
     public string? Description { get; set; }
@@ -132,7 +132,7 @@ public class QuotationItem : BaseEntity
             return (false, "Discount amount cannot exceed total price");
         }
         
-        return (true, string.Empty);
+        return (true, "");
     }
     
     /// <summary>
