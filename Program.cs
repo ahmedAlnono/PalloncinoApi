@@ -160,6 +160,8 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 // builder.Services.AddScoped<IJobOrderService, JobOrderService>();
 // builder.Services.AddScoped<INotificationService, NotificationService>();
 // builder.Services.AddScoped<IReportService, ReportService>();
