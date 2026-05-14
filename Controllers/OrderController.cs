@@ -11,27 +11,15 @@ namespace Palloncino.Controllers;
 
 [ApiController]
 [Route("api/orders")]
-public class OrderController : ControllerBase
+public class OrderController(
+    IOrderService orderService,
+    IUserService userService,
+    IMapper mapper,
+    IFileStorageService fileStorageService) : ControllerBase
 {
-    private readonly IOrderService _orderService;
-    private readonly IUserService _userService;
-    private readonly IMapper _mapper;
-    private readonly IFileStorageService _fileStorageService;
-    
-    public OrderController(
-        IOrderService orderService,
-        IUserService userService,
-        IMapper mapper,
-        IFileStorageService fileStorageService)
-    {
-        _orderService = orderService;
-        _userService = userService;
-        _mapper = mapper;
-        _fileStorageService = fileStorageService;
-    }
-    
+
     // ========== Customer Endpoints ==========
-    
+
     /// <summary>
     /// POST /api/orders - إنشاء طلب عادي من الكتالوج
     /// </summary>
@@ -40,16 +28,16 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto createDto)
     {
         var customerId = GetCurrentUserId();
-        var order = _mapper.Map<Order>(createDto);
+        var order = mapper.Map<Order>(createDto);
         order.CustomerId = customerId;
         order.Type = OrderType.Regular;
         
-        var items = _mapper.Map<List<OrderItem>>(createDto.Items);
+        var items = mapper.Map<List<OrderItem>>(createDto.Items);
         
         try
         {
-            var created = await _orderService.CreateOrderAsync(order, items);
-            var orderDto = _mapper.Map<OrderDto>(created);
+            var created = await orderService.CreateOrderAsync(order, items);
+            var orderDto = mapper.Map<OrderDto>(created);
             
             return Ok(new
             {
@@ -89,7 +77,7 @@ public class OrderController : ControllerBase
         {
             foreach (var file in createDto.Attachments)
             {
-                var fileUrl = await _fileStorageService.UploadFileAsync(file, "orders/custom");
+                var fileUrl = await fileStorageService.UploadFileAsync(file, "orders/custom");
                 attachments.Add(new Attachment
                 {
                     FileName = file.FileName,
@@ -105,8 +93,8 @@ public class OrderController : ControllerBase
         
         try
         {
-            var created = await _orderService.CreateCustomOrderAsync(order, createDto.Description, attachments);
-            var orderDto = _mapper.Map<OrderDto>(created);
+            var created = await orderService.CreateCustomOrderAsync(order, createDto.Description, attachments);
+            var orderDto = mapper.Map<OrderDto>(created);
             
             return Ok(new
             {
@@ -129,18 +117,18 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetMyOrders()
     {
         var userId = GetCurrentUserId();
-        var user = await _userService.GetUserByIdAsync(userId);
+        var user = await userService.GetUserByIdAsync(userId);
         
         if (user?.Role == UserRole.Customer)
         {
-            var orders = await _orderService.GetCustomerOrdersAsync(userId);
-            var orderDtos = _mapper.Map<IEnumerable<OrderDto>>(orders);
+            var orders = await orderService.GetCustomerOrdersAsync(userId);
+            var orderDtos = mapper.Map<IEnumerable<OrderDto>>(orders);
             return Ok(new { success = true, data = orderDtos });
         }
         
         // For internal staff, show all orders they can access
-        var allOrders = await _orderService.GetAllOrdersAsync();
-        var allOrderDtos = _mapper.Map<IEnumerable<OrderDto>>(allOrders);
+        var allOrders = await orderService.GetAllOrdersAsync();
+        var allOrderDtos = mapper.Map<IEnumerable<OrderDto>>(allOrders);
         return Ok(new { success = true, data = allOrderDtos });
     }
     
@@ -151,18 +139,18 @@ public class OrderController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetOrderById(int id)
     {
-        var order = await _orderService.GetOrderByIdAsync(id);
+        var order = await orderService.GetOrderByIdAsync(id);
         if (order == null)
             return NotFound(new { success = false, message = "Order not found" });
         
         // Check authorization
         var userId = GetCurrentUserId();
-        var user = await _userService.GetUserByIdAsync(userId);
+        var user = await userService.GetUserByIdAsync(userId);
         
         if (user?.Role == UserRole.Customer && order.CustomerId != userId)
             return Forbid();
         
-        var orderDto = _mapper.Map<OrderDto>(order);
+        var orderDto = mapper.Map<OrderDto>(order);
         
         return Ok(new { success = true, data = orderDto });
     }
@@ -176,8 +164,8 @@ public class OrderController : ControllerBase
     [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> GetAllOrders([FromQuery] OrderStatus? status, [FromQuery] int? customerId)
     {
-        var orders = await _orderService.GetAllOrdersAsync(status, customerId);
-        var orderDtos = _mapper.Map<IEnumerable<OrderDto>>(orders);
+        var orders = await orderService.GetAllOrdersAsync(status, customerId);
+        var orderDtos = mapper.Map<IEnumerable<OrderDto>>(orders);
         
         return Ok(new
         {
@@ -194,14 +182,14 @@ public class OrderController : ControllerBase
     [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> ApproveOrder(int id)
     {
-        var canApprove = await _orderService.CanApproveOrderAsync(id);
+        var canApprove = await orderService.CanApproveOrderAsync(id);
         if (!canApprove)
             return BadRequest(new { success = false, message = "Order cannot be approved" });
         
         try
         {
-            var approved = await _orderService.ApproveOrderAsync(id, GetCurrentUserId());
-            var orderDto = _mapper.Map<OrderDto>(approved);
+            var approved = await orderService.ApproveOrderAsync(id, GetCurrentUserId());
+            var orderDto = mapper.Map<OrderDto>(approved);
             
             return Ok(new
             {
@@ -226,14 +214,14 @@ public class OrderController : ControllerBase
         if (string.IsNullOrWhiteSpace(request.Reason))
             return BadRequest(new { success = false, message = "Rejection reason is required" });
         
-        var canReject = await _orderService.CanRejectOrderAsync(id);
+        var canReject = await orderService.CanRejectOrderAsync(id);
         if (!canReject)
             return BadRequest(new { success = false, message = "Order cannot be rejected" });
         
         try
         {
-            var rejected = await _orderService.RejectOrderAsync(id, GetCurrentUserId(), request.Reason);
-            var orderDto = _mapper.Map<OrderDto>(rejected);
+            var rejected = await orderService.RejectOrderAsync(id, GetCurrentUserId(), request.Reason);
+            var orderDto = mapper.Map<OrderDto>(rejected);
             
             return Ok(new
             {
@@ -257,13 +245,13 @@ public class OrderController : ControllerBase
     {
         try
         {
-            var updated = await _orderService.UpdateOrderStatusAsync(
+            var updated = await orderService.UpdateOrderStatusAsync(
                 id, 
                 request.Status, 
                 GetCurrentUserId(), 
                 request.Reason);
             
-            var orderDto = _mapper.Map<OrderDto>(updated);
+            var orderDto = mapper.Map<OrderDto>(updated);
             
             return Ok(new
             {
@@ -285,7 +273,7 @@ public class OrderController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetOrderStatistics([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
     {
-        var statistics = await _orderService.GetOrderStatisticsAsync(fromDate, toDate);
+        var statistics = await orderService.GetOrderStatisticsAsync(fromDate, toDate);
         return Ok(new { success = true, data = statistics });
     }
     

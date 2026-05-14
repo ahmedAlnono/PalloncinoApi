@@ -9,19 +9,13 @@ namespace Palloncino.Controllers;
 
 [ApiController]
 [Route("api")]
-public class CatalogController : ControllerBase
+public class CatalogController(
+    ICatalogService catalogService,
+    IMapper mapper) : ControllerBase
 {
-    private readonly ICatalogService _catalogService;
-    private readonly IMapper _mapper;
-    
-    public CatalogController(ICatalogService catalogService, IMapper mapper)
-    {
-        _catalogService = catalogService;
-        _mapper = mapper;
-    }
-    
+
     // ========== Customer Endpoints (Public) ==========
-    
+
     /// <summary>
     /// GET /api/catalog - عرض عناصر الكتالوج (للعميل)
     /// </summary>
@@ -29,8 +23,8 @@ public class CatalogController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetAllCatalogItems([FromQuery] string? category, [FromQuery] bool includeOutOfStock = false)
     {
-        var items = await _catalogService.GetAllCatalogItemsAsync(category, includeOutOfStock);
-        var itemDtos = _mapper.Map<IEnumerable<CatalogItemDto>>(items);
+        var items = await catalogService.GetAllCatalogItemsAsync(category, includeOutOfStock);
+        var itemDtos = mapper.Map<IEnumerable<CatalogItemDto>>(items);
         
         return Ok(new
         {
@@ -47,12 +41,12 @@ public class CatalogController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetCatalogItemById(int id)
     {
-        var item = await _catalogService.GetCatalogItemByIdAsync(id);
+        var item = await catalogService.GetCatalogItemByIdAsync(id);
         
         if (item == null)
             return NotFound(new { success = false, message = "Catalog item not found" });
         
-        var itemDto = _mapper.Map<CatalogItemDto>(item);
+        var itemDto = mapper.Map<CatalogItemDto>(item);
         
         return Ok(new { success = true, data = itemDto });
     }
@@ -64,8 +58,8 @@ public class CatalogController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetAllTemplates([FromQuery] string? category)
     {
-        var templates = await _catalogService.GetAllTemplatesAsync(category);
-        var templateDtos = _mapper.Map<IEnumerable<TemplateDto>>(templates);
+        var templates = await catalogService.GetAllTemplatesAsync(category);
+        var templateDtos = mapper.Map<IEnumerable<TemplateDto>>(templates);
         
         return Ok(new
         {
@@ -82,12 +76,12 @@ public class CatalogController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetTemplateById(int id)
     {
-        var template = await _catalogService.GetTemplateByIdAsync(id);
+        var template = await catalogService.GetTemplateByIdAsync(id);
         
         if (template == null)
             return NotFound(new { success = false, message = "Template not found" });
         
-        var discountedPrice = await _catalogService.GetTemplateDiscountedPriceAsync(id);
+        var discountedPrice = await catalogService.GetTemplateDiscountedPriceAsync(id);
         
         var response = new
         {
@@ -129,12 +123,12 @@ public class CatalogController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateCatalogItem([FromBody] CreateCatalogItemDto createDto)
     {
-        var item = _mapper.Map<CatalogItem>(createDto);
+        var item = mapper.Map<CatalogItem>(createDto);
         
         try
         {
-            var created = await _catalogService.CreateCatalogItemAsync(item);
-            var itemDto = _mapper.Map<CatalogItemDto>(created);
+            var created = await catalogService.CreateCatalogItemAsync(item);
+            var itemDto = mapper.Map<CatalogItemDto>(created);
             
             return CreatedAtAction(nameof(GetCatalogItemById), new { id = itemDto.Id }, new
             {
@@ -156,17 +150,17 @@ public class CatalogController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateCatalogItem(int id, [FromBody] UpdateCatalogItemDto updateDto)
     {
-        var existingItem = await _catalogService.GetCatalogItemByIdAsync(id);
+        var existingItem = await catalogService.GetCatalogItemByIdAsync(id);
         if (existingItem == null)
             return NotFound(new { success = false, message = "Catalog item not found" });
         
-        _mapper.Map(updateDto, existingItem);
+        mapper.Map(updateDto, existingItem);
         existingItem.UpdatedBy = GetCurrentUserId();
         
         try
         {
-            var updated = await _catalogService.UpdateCatalogItemAsync(existingItem);
-            var itemDto = _mapper.Map<CatalogItemDto>(updated);
+            var updated = await catalogService.UpdateCatalogItemAsync(existingItem);
+            var itemDto = mapper.Map<CatalogItemDto>(updated);
             
             return Ok(new
             {
@@ -188,13 +182,13 @@ public class CatalogController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteCatalogItem(int id)
     {
-        var exists = await _catalogService.CatalogItemExistsAsync(id);
+        var exists = await catalogService.CatalogItemExistsAsync(id);
         if (!exists)
             return NotFound(new { success = false, message = "Catalog item not found" });
         
         try
         {
-            var deleted = await _catalogService.SoftDeleteCatalogItemAsync(id, GetCurrentUserId());
+            var deleted = await catalogService.SoftDeleteCatalogItemAsync(id, GetCurrentUserId());
             
             if (!deleted)
                 return BadRequest(new { success = false, message = "Failed to delete catalog item" });

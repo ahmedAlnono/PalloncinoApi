@@ -10,22 +10,12 @@ namespace Palloncino.Controllers;
 [ApiController]
 [Route("api/quotations")]
 [Authorize]
-public class QuotationController : ControllerBase
+public class QuotationController(
+    IQuotationService quotationService,
+    IOrderService orderService,
+    IMapper mapper) : ControllerBase
 {
-    private readonly IQuotationService _quotationService;
-    private readonly IOrderService _orderService;
-    private readonly IMapper _mapper;
-    
-    public QuotationController(
-        IQuotationService quotationService,
-        IOrderService orderService,
-        IMapper mapper)
-    {
-        _quotationService = quotationService;
-        _orderService = orderService;
-        _mapper = mapper;
-    }
-    
+
     /// <summary>
     /// POST /api/quotations - إنشاء عرض سعر مرتبط بطلب
     /// </summary>
@@ -34,7 +24,7 @@ public class QuotationController : ControllerBase
     public async Task<IActionResult> CreateQuotation([FromBody] CreateQuotationRequest request)
     {
         // Verify order exists
-        var order = await _orderService.GetOrderByIdAsync(request.OrderId);
+        var order = await orderService.GetOrderByIdAsync(request.OrderId);
         if (order == null)
             return NotFound(new { success = false, message = "Order not found" });
         
@@ -43,13 +33,13 @@ public class QuotationController : ControllerBase
         
         try
         {
-            var quotation = await _quotationService.CreateQuotationAsync(
+            var quotation = await quotationService.CreateQuotationAsync(
                 request.OrderId,
                 request.Items,
                 request.Notes,
                 request.ValidUntil);
             
-            var quotationDto = _mapper.Map<QuotationDto>(quotation);
+            var quotationDto = mapper.Map<QuotationDto>(quotation);
             
             return Ok(new
             {
@@ -70,7 +60,7 @@ public class QuotationController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetQuotationById(int id)
     {
-        var quotation = await _quotationService.GetQuotationByIdAsync(id);
+        var quotation = await quotationService.GetQuotationByIdAsync(id);
         if (quotation == null)
             return NotFound(new { success = false, message = "Quotation not found" });
         
@@ -81,7 +71,7 @@ public class QuotationController : ControllerBase
         if (userRole == "Customer" && quotation.Order.CustomerId != userId)
             return Forbid();
         
-        var quotationDto = _mapper.Map<QuotationDto>(quotation);
+        var quotationDto = mapper.Map<QuotationDto>(quotation);
         
         return Ok(new { success = true, data = quotationDto });
     }
@@ -95,8 +85,8 @@ public class QuotationController : ControllerBase
     {
         try
         {
-            var quotation = await _quotationService.UpdateQuotationAsync(id, request.Items, request.Notes);
-            var quotationDto = _mapper.Map<QuotationDto>(quotation);
+            var quotation = await quotationService.UpdateQuotationAsync(id, request.Items, request.Notes);
+            var quotationDto = mapper.Map<QuotationDto>(quotation);
             
             return Ok(new
             {
@@ -117,7 +107,7 @@ public class QuotationController : ControllerBase
     [HttpGet("{id}/pdf")]
     public async Task<IActionResult> GenerateQuotationPdf(int id)
     {
-        var quotation = await _quotationService.GetQuotationByIdAsync(id);
+        var quotation = await quotationService.GetQuotationByIdAsync(id);
         if (quotation == null)
             return NotFound(new { success = false, message = "Quotation not found" });
         
@@ -130,7 +120,7 @@ public class QuotationController : ControllerBase
         
         try
         {
-            var pdfBytes = await _quotationService.GenerateQuotationPdfAsync(id);
+            var pdfBytes = await quotationService.GenerateQuotationPdfAsync(id);
             
             return File(pdfBytes, "application/pdf", $"Quotation_{quotation.QuotationNumber}.pdf");
         }
@@ -147,8 +137,8 @@ public class QuotationController : ControllerBase
     [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> GetQuotationsByOrder(int orderId)
     {
-        var quotations = await _quotationService.GetQuotationsByOrderAsync(orderId);
-        var quotationDtos = _mapper.Map<IEnumerable<QuotationDto>>(quotations);
+        var quotations = await quotationService.GetQuotationsByOrderAsync(orderId);
+        var quotationDtos = mapper.Map<IEnumerable<QuotationDto>>(quotations);
         
         return Ok(new { success = true, data = quotationDtos });
     }
@@ -162,8 +152,8 @@ public class QuotationController : ControllerBase
     {
         try
         {
-            var quotation = await _quotationService.ApproveQuotationAsync(id, GetCurrentUserId());
-            var quotationDto = _mapper.Map<QuotationDto>(quotation);
+            var quotation = await quotationService.ApproveQuotationAsync(id, GetCurrentUserId());
+            var quotationDto = mapper.Map<QuotationDto>(quotation);
             
             return Ok(new
             {
@@ -187,8 +177,8 @@ public class QuotationController : ControllerBase
     {
         try
         {
-            var quotation = await _quotationService.RejectQuotationAsync(id, GetCurrentUserId());
-            var quotationDto = _mapper.Map<QuotationDto>(quotation);
+            var quotation = await quotationService.RejectQuotationAsync(id, GetCurrentUserId());
+            var quotationDto = mapper.Map<QuotationDto>(quotation);
             
             return Ok(new
             {
@@ -212,7 +202,7 @@ public class QuotationController : ControllerBase
     {
         try
         {
-            var deleted = await _quotationService.DeleteQuotationAsync(id);
+            var deleted = await quotationService.DeleteQuotationAsync(id);
             
             if (!deleted)
                 return NotFound(new { success = false, message = "Quotation not found" });
