@@ -48,6 +48,9 @@ namespace Palloncino.Data
         public DbSet<ActivityLog> ActivityLogs { get; set; }
 
         public DbSet<UserDeviceToken> UserDeviceTokens { get; set; }
+
+        public DbSet<DesignStatusHistory> DesignStatusHistories { get; set; }
+
         // ========== OnModelCreating - Fluent API Configurations ==========
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -465,16 +468,36 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => e.Token).IsUnique();
                 entity.HasIndex(e => e.IsActive);
-            
+
                 entity.Property(e => e.Token).IsRequired().HasMaxLength(500);
                 entity.Property(e => e.DeviceType).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.DeviceModel).HasMaxLength(100);
                 entity.Property(e => e.AppVersion).HasMaxLength(20);
-            
+
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DesignStatusHistory>(entity =>
+            {
+                entity.HasIndex(e => e.TaskId);
+                entity.HasIndex(e => e.ChangedAt);
+            
+                entity.Property(e => e.PreviousStatus).HasMaxLength(50);
+                entity.Property(e => e.NewStatus).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Notes).HasMaxLength(500);
+            
+                entity.HasOne(e => e.Task)
+                    .WithMany()
+                    .HasForeignKey(e => e.TaskId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            
+                entity.HasOne(e => e.ChangedByUser)
+                    .WithMany()
+                    .HasForeignKey(e => e.ChangedBy)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
 

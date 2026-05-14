@@ -1,5 +1,6 @@
 using Palloncino.Models.Enums;
 namespace Palloncino.Models.DTOs;
+
 public class TaskFilter
 {
     public TaskType? Type { get; set; }
@@ -48,4 +49,81 @@ public class UpcomingTaskDto
     public DateTime DueAt { get; set; }
     public TaskType Type { get; set; }
     public string AssignedToName { get; set; } = string.Empty;
+}
+
+// ========== Design Task DTOs ==========
+
+public class DesignTaskDetailsDto
+{
+    public int TaskId { get; set; }
+    public string TaskTitle { get; set; } = string.Empty;
+    public string? TaskDescription { get; set; }
+    public Enums.TaskStatus TaskStatus { get; set; }
+    public DateTime DueAt { get; set; }
+    public int? AssignedTo { get; set; }
+    public string? AssignedToName { get; set; }
+    public int JobOrderId { get; set; }
+    public string? JobNumber { get; set; }
+    public int CustomerId { get; set; }
+    public string? CustomerName { get; set; }
+    public string? CustomerPhone { get; set; }
+    public string? CustomerEmail { get; set; }
+    public string? DesignBrief { get; set; }
+    public string? SpecialInstructions { get; set; }
+    public List<AttachmentDto> ReferenceImages { get; set; } = new();
+    public List<AttachmentDto> DesignProposals { get; set; } = new();
+    public List<StatusHistoryDto> StatusHistory { get; set; } = new();
+}
+
+public class StatusHistoryDto
+{
+    public string? PreviousStatus { get; set; }
+    public string NewStatus { get; set; } = string.Empty;
+    public int ChangedBy { get; set; }
+    public string? ChangedByName { get; set; }
+    public DateTime ChangedAt { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class UploadDesignProposalRequest
+{
+    public List<IFormFile> Files { get; set; } = new();
+    public string? Description { get; set; }
+}
+
+public class UpdateDesignStatusRequest
+{
+    public string Status { get; set; } = string.Empty; // in_progress, pending_review, completed
+    public string? Notes { get; set; }
+}
+
+public class PendingDesignTaskDto
+{
+    public int TaskId { get; set; }
+    public string TaskTitle { get; set; } = string.Empty;
+    public int JobOrderId { get; set; }
+    public string? JobNumber { get; set; }
+    public string? CustomerName { get; set; }
+    public DateTime DueAt { get; set; }
+    public int DaysRemaining { get; set; }
+    public bool HasProposals { get; set; }
+}
+
+public class DesignReviewTaskDto
+{
+    public int TaskId { get; set; }
+    public string TaskTitle { get; set; } = string.Empty;
+    public int JobOrderId { get; set; }
+    public string? JobNumber { get; set; }
+    public string? CustomerName { get; set; }
+    public string? DesignerName { get; set; }
+    public DateTime DueAt { get; set; }
+    public int ProposalCount { get; set; }
+    public DateTime? LatestProposalAt { get; set; }
+}
+
+public class AddDesignFeedbackRequest
+{
+    public string Feedback { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
 }
