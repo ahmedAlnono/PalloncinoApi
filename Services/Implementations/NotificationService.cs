@@ -445,7 +445,7 @@ public class NotificationService : INotificationService
             var message = new MulticastMessage
             {
                 Tokens = userDeviceTokens,
-                Notification = new Notification
+                Notification = new FirebaseAdmin.Messaging.Notification
                 {
                     Title = title,
                     Body = body
@@ -457,7 +457,7 @@ public class NotificationService : INotificationService
                     Notification = new AndroidNotification
                     {
                         ChannelId = "palloncino_notifications",
-                        Priority = NotificationPriority.High,
+                        Priority = NotificationPriority.HIGH,
                         ClickAction = "FLUTTER_NOTIFICATION_CLICK"
                     }
                 },
@@ -538,9 +538,9 @@ public class NotificationService : INotificationService
     
     // ========== Private Helper Methods ==========
     
-    private async Task<Notification> SaveNotification(int recipientId, string title, string body, NotificationType type, int? relatedEntityId, string? relatedEntityType)
+    private async Task<Models.Entities.Notification> SaveNotification(int recipientId, string title, string body, NotificationType type, int? relatedEntityId, string? relatedEntityType)
     {
-        var notification = new Notification
+        var notification = new Models.Entities.Notification
         {
             RecipientId = recipientId,
             Title = title,
@@ -557,5 +557,15 @@ public class NotificationService : INotificationService
         await _context.SaveChangesAsync();
         
         return notification;
+    }
+
+    public Task SendWelcomeNotification(User user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task SendLowStockNotification(int inventoryItemId, int currentStock)
+    {
+        throw new NotImplementedException();
     }
 }

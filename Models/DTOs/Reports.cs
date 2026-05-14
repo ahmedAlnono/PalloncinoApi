@@ -92,30 +92,21 @@ namespace Palloncino.Models.DTOs
     public class JobOrderSummaryDto
     {
         public int Id { get; set; }
-        public string JobNumber { get; set; } = string.Empty;
+        public string JobNumber { get; set; } = "";
         public DateTime CreatedAt { get; set; }
         public DateTime DueAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public JobOrderStatus Status { get; set; }
-        public string BranchName { get; set; } = string.Empty;
+        public string BranchName { get; set; } = "";
         public string? CustomerName { get; set; }
         public decimal Revenue { get; set; }
         public decimal Cost { get; set; }
         public decimal Profit { get; set; }
     }
-    public class BroadcastNotificationDto
-    {
-        public string Title { get; set; } = string.Empty;
-        public string Body { get; set; } = string.Empty;
-        public NotificationType Type { get; set; } = NotificationType.General;
-        public string? ImageUrl { get; set; }
-        public List<UserRole>? TargetRoles { get; set; }
-        public int? BranchId { get; set; }
-    }
 
     public class PushNotificationData
     {
-        public string Type { get; set; } = string.Empty;
+        public string Type { get; set; } = "";
         public int? EntityId { get; set; }
         public string? EntityType { get; set; }
     }
