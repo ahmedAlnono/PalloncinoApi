@@ -103,4 +103,20 @@ namespace Palloncino.Models.DTOs
         public decimal Cost { get; set; }
         public decimal Profit { get; set; }
     }
+    public class BroadcastNotificationDto
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Body { get; set; } = string.Empty;
+        public NotificationType Type { get; set; } = NotificationType.General;
+        public string? ImageUrl { get; set; }
+        public List<UserRole>? TargetRoles { get; set; }
+        public int? BranchId { get; set; }
+    }
+
+    public class PushNotificationData
+    {
+        public string Type { get; set; } = string.Empty;
+        public int? EntityId { get; set; }
+        public string? EntityType { get; set; }
+    }
 }

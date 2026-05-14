@@ -67,7 +67,9 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Status, 
                 opt => opt.MapFrom(src => ItemStatus.Available))
             .ForMember(dest => dest.CreatedAt, 
-                opt => opt.MapFrom(src => DateTime.UtcNow));
+                opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest=> dest.IsActive,
+                opt=> opt.MapFrom(src=>true));
         
         CreateMap<UpdateCatalogItemDto, CatalogItem>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

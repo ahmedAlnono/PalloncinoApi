@@ -1,12 +1,34 @@
 using Palloncino.Models.Entities;
+using Palloncino.Models.Enums;
+using Task = System.Threading.Tasks.Task;
 
 namespace Palloncino.Services.Interfaces;
 
 public interface INotificationService
 {
-    System.Threading.Tasks.Task SendTaskAssignedNotification(int taskId, int userId);
-    System.Threading.Tasks.Task SendTaskCompletedByOtherNotification(int taskId, int assignedToId, int completedById);
-    System.Threading.Tasks.Task SendWelcomeNotification(User user);
-    System.Threading.Tasks.Task SendJobOrderCreatedNotification(int jobOrderId, int coordinatorId);
-    System.Threading.Tasks.Task SendLowStockNotification(int inventoryItemId, int currentStock);
+    Task SendTaskAssignedNotification(int taskId, int userId);
+    Task SendTaskCompletedByOtherNotification(int taskId, int assignedToId, int completedById);
+    Task SendWelcomeNotification(User user);
+    Task SendJobOrderCreatedNotification(int jobOrderId, int coordinatorId);
+    Task SendLowStockNotification(int inventoryItemId, int currentStock);
+        Task SendOrderCreatedNotification(int orderId, int customerId);
+    Task SendNewCustomOrderNotification(int orderId);
+    Task SendOrderApprovedNotification(int orderId, int customerId);
+    Task SendOrderRejectedNotification(int orderId, int customerId, string reason);
+    
+    // ========== Job Order Notifications ==========
+    Task SendTaskReminderNotification(int taskId, int assigneeId);
+    Task SendDeliveryChecklistReminderNotification(int jobOrderId, int driverId);
+    
+    // ========== Inventory Notifications ==========
+    Task SendLowStockAlertAsync(int inventoryItemId);
+    
+    // ========== Admin Notifications ==========
+    Task SendBroadcastNotificationAsync(BroadcastNotificationDto broadcast);
+    Task SendInternalNotificationAsync(int recipientId, string title, string body, NotificationType type, int? relatedEntityId = null, string? relatedEntityType = null);
+    
+    // ========== Push Notification Methods ==========
+    Task SendPushNotificationAsync(int userId, string title, string body, Dictionary<string, string>? data = null);
+    Task SendPushNotificationToRoleAsync(UserRole role, string title, string body, Dictionary<string, string>? data = null);
+    Task SendPushNotificationToBranchAsync(int branchId, string title, string body, Dictionary<string, string>? data = null);
 }

@@ -7,6 +7,8 @@ using Palloncino.Models.Enums;
 using Palloncino.Services.Interfaces;
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
+using Palloncino.Data;
+using Microsoft.EntityFrameworkCore;
 
 
 
@@ -18,6 +20,7 @@ public class AuthController(
     IUserService userService,
     ITokenService tokenService,
     IBranchService branchService,
+    ApplicationDbContext context,
     ILogger<AuthController> logger) : ControllerBase
 {
     [AllowAnonymous]
@@ -204,16 +207,67 @@ public class AuthController(
             user = new { user.Id, user.FullName, user.Email, user.Role, user.BranchId }
         });
     }
-    
-    
+
+
     [HttpGet("test")]
     public ActionResult Test()
     {
         return Ok(GetCurrentUserId());
     }
+
+    /// <summary>
+    /// Register device token for push notifications
+    /// </summary>
+    [Authorize]
+    [HttpPost("device-token")]
+    public async Task<IActionResult> RegisterDeviceToken([FromBody] RegisterDeviceTokenRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        var existingToken = await context.UserDeviceTokens
+            .FirstOrDefaultAsync(t => t.UserId == userId && t.Token == request.Token);
+
+        if (existingToken == null)
+        {
+            var deviceToken = new UserDeviceToken
+            {
+                UserId = userId,
+                Token = request.Token,
+                DeviceType = request.DeviceType,
+                DeviceModel = request.DeviceModel,
+                AppVersion = request.AppVersion,
+                IsActive = true,
+                LastUsedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            context.UserDeviceTokens.Add(deviceToken);
+        }
+        else
+        {
+            existingToken.LastUsedAt = DateTime.UtcNow;
+            existingToken.IsActive = true;
+            existingToken.DeviceType = request.DeviceType;
+            existingToken.DeviceModel = request.DeviceModel;
+            existingToken.AppVersion = request.AppVersion;
+            existingToken.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "Device token registered successfully" });
+    }
+
+    public class RegisterDeviceTokenRequest
+    {
+        public string Token { get; set; } = string.Empty;
+        public string DeviceType { get; set; } = string.Empty;
+        public string? DeviceModel { get; set; }
+        public string? AppVersion { get; set; }
+    }
     private int GetCurrentUserId()
     {
-        string? id = (User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value) 
+        string? id = (User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value)
         ?? throw new Exception("Id not found");
         return int.Parse(id);
     }

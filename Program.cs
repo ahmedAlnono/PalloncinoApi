@@ -167,6 +167,10 @@ builder.Services.AddScoped<IJobOrderService, JobOrderService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
 
 // builder.Services.AddScoped<IReportService, ReportService>();
 // builder.Services.AddScoped<IActivityLogService, ActivityLogService>();

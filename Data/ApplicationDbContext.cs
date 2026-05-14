@@ -13,24 +13,24 @@ namespace Palloncino.Data
         }
 
         // ========== DbSet Properties ==========
-        
+
         // User Management
         public DbSet<User> Users { get; set; }
         public DbSet<Branch> Branches { get; set; }
-        
+
         // Catalog & Inventory
         public DbSet<CatalogItem> CatalogItems { get; set; }
         public DbSet<Template> Templates { get; set; }
         public DbSet<TemplateItem> TemplateItems { get; set; }
         public DbSet<InventoryItem> InventoryItems { get; set; }
         public DbSet<InventoryMovement> InventoryMovements { get; set; }
-        
+
         // Orders & Quotations
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Quotation> Quotations { get; set; }
         public DbSet<QuotationItem> QuotationItems { get; set; }
-        
+
         // Job Orders & Tasks
         public DbSet<JobOrder> JobOrders { get; set; }
         public DbSet<JobOrderItem> JobOrderItems { get; set; }
@@ -38,17 +38,18 @@ namespace Palloncino.Data
         public DbSet<Palloncino.Models.Entities.Task> Tasks { get; set; }
         public DbSet<SubTask> SubTasks { get; set; }
         public DbSet<ChecklistItem> ChecklistItems { get; set; }
-        
+
         // Communication
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        
+
         // Attachments & Logs
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
 
+        public DbSet<UserDeviceToken> UserDeviceTokens { get; set; }
         // ========== OnModelCreating - Fluent API Configurations ==========
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -72,12 +73,12 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.Phone).IsUnique();
                 entity.HasIndex(e => e.Role);
                 entity.HasIndex(e => e.BranchId);
-                
+
                 entity.Property(e => e.FullName).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Phone).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(500);
-                
+
                 // Relationships
                 entity.HasOne(e => e.Branch)
                     .WithMany(b => b.Users)
@@ -101,7 +102,7 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.Sku).IsUnique();
                 entity.HasIndex(e => e.Category);
                 entity.HasIndex(e => e.IsRental);
-                
+
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Description).HasMaxLength(1000);
                 entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
@@ -123,12 +124,12 @@ namespace Palloncino.Data
             modelBuilder.Entity<TemplateItem>(entity =>
             {
                 entity.HasIndex(e => new { e.TemplateId, e.CatalogItemId }).IsUnique();
-                
+
                 entity.HasOne(e => e.Template)
                     .WithMany(t => t.TemplateItems)
                     .HasForeignKey(e => e.TemplateId)
                     .OnDelete(DeleteBehavior.Cascade);
-                
+
                 entity.HasOne(e => e.CatalogItem)
                     .WithMany(c => c.TemplateItems)
                     .HasForeignKey(e => e.CatalogItemId)
@@ -141,13 +142,13 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.Sku).IsUnique();
                 entity.HasIndex(e => e.BranchId);
                 entity.HasIndex(e => e.Status);
-                
+
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Sku).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.PurchasePrice).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.SalePrice).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Unit).IsRequired().HasMaxLength(20);
-                
+
                 entity.HasOne(e => e.Branch)
                     .WithMany(b => b.InventoryItems)
                     .HasForeignKey(e => e.BranchId)
@@ -161,14 +162,14 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.Status);
                 entity.HasIndex(e => e.Type);
                 entity.HasIndex(e => e.CreatedAt);
-                
+
                 entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.DeliveryFee).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.CustomDesignDescription).HasMaxLength(2000);
                 entity.Property(e => e.Notes).HasMaxLength(1000);
                 entity.Property(e => e.RejectionReason).HasMaxLength(500);
                 entity.Property(e => e.Address).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.Customer)
                     .WithMany(u => u.Orders)
                     .HasForeignKey(e => e.CustomerId)
@@ -181,7 +182,7 @@ namespace Palloncino.Data
                 entity.Property(e => e.ItemName).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.TotalPrice).HasColumnType("decimal(18,2)");
-                
+
                 entity.HasOne(e => e.Order)
                     .WithMany(o => o.OrderItems)
                     .HasForeignKey(e => e.OrderId)
@@ -194,12 +195,12 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.QuotationNumber).IsUnique();
                 entity.HasIndex(e => e.OrderId);
                 entity.HasIndex(e => e.Status);
-                
+
                 entity.Property(e => e.QuotationNumber).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Notes).HasMaxLength(1000);
                 entity.Property(e => e.PrintableVersion);
-                
+
                 entity.HasOne(e => e.Order)
                     .WithMany(o => o.Quotations)
                     .HasForeignKey(e => e.OrderId)
@@ -215,7 +216,7 @@ namespace Palloncino.Data
                 entity.Property(e => e.DiscountPercentage).HasColumnType("decimal(5,2)");
                 entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Notes).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.Quotation)
                     .WithMany(q => q.QuotationItems)
                     .HasForeignKey(e => e.QuotationId)
@@ -230,18 +231,18 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.Status);
                 entity.HasIndex(e => e.DueAt);
                 entity.HasIndex(e => e.AssignedToCoordinator);
-                
+
                 entity.Property(e => e.JobNumber).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.SpecialInstructions).HasMaxLength(2000);
                 entity.Property(e => e.DeliveryAddress).HasMaxLength(500);
                 entity.Property(e => e.TotalCost).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.TotalRevenue).HasColumnType("decimal(18,2)");
-                
+
                 entity.HasOne(e => e.SourceOrder)
                     .WithOne(o => o.JobOrder)
                     .HasForeignKey<JobOrder>(e => e.SourceOrderId)
                     .OnDelete(DeleteBehavior.Restrict);
-                
+
                 entity.HasOne(e => e.Branch)
                     .WithMany(b => b.JobOrders)
                     .HasForeignKey(e => e.BranchId)
@@ -255,7 +256,7 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.InventoryItemId);
                 entity.HasIndex(e => e.Status);
                 entity.HasIndex(e => e.Phase);
-                
+
                 entity.Property(e => e.ItemName).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Sku).HasMaxLength(50);
                 entity.Property(e => e.Unit).IsRequired().HasMaxLength(20);
@@ -266,12 +267,12 @@ namespace Palloncino.Data
                 entity.Property(e => e.Notes).HasMaxLength(500);
                 entity.Property(e => e.ChecklistItemIds).HasMaxLength(500);
                 entity.Property(e => e.ProofImageUrl).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.JobOrder)
                     .WithMany(jo => jo.JobOrderItems)
                     .HasForeignKey(e => e.JobOrderId)
                     .OnDelete(DeleteBehavior.Cascade);
-                
+
                 entity.HasOne(e => e.InventoryItem)
                     .WithMany(i => i.JobOrderItems)
                     .HasForeignKey(e => e.InventoryItemId)
@@ -284,10 +285,10 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.JobOrderItemId);
                 entity.HasIndex(e => e.PerformedBy);
                 entity.HasIndex(e => e.PerformedAt);
-                
+
                 entity.Property(e => e.Action).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Reason).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.JobOrderItem)
                     .WithMany()
                     .HasForeignKey(e => e.JobOrderItemId)
@@ -303,11 +304,11 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.Status);
                 entity.HasIndex(e => e.Type);
                 entity.HasIndex(e => e.DueAt);
-                
+
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Description).HasMaxLength(1000);
                 entity.Property(e => e.SkipReason).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.JobOrder)
                     .WithMany(jo => jo.Tasks)
                     .HasForeignKey(e => e.JobOrderId)
@@ -329,10 +330,10 @@ namespace Palloncino.Data
             {
                 entity.HasIndex(e => e.TaskId);
                 entity.HasIndex(e => e.IsCompleted);
-                
+
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Description).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.Task)
                     .WithMany(t => t.SubTasks)
                     .HasForeignKey(e => e.TaskId)
@@ -345,10 +346,10 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.TaskId);
                 entity.HasIndex(e => e.Phase);
                 entity.HasIndex(e => e.IsChecked);
-                
+
                 entity.Property(e => e.ItemName).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.ProofImageUrl).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.Task)
                     .WithMany(t => t.ChecklistItems)
                     .HasForeignKey(e => e.TaskId)
@@ -362,16 +363,16 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.RoomId);
                 entity.HasIndex(e => e.SenderId);
                 entity.HasIndex(e => e.CreatedAt);
-                
+
                 entity.Property(e => e.Message).HasMaxLength(2000);
                 entity.Property(e => e.ImageUrl).HasMaxLength(500);
                 entity.Property(e => e.MentionedUserIds).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.Sender)
                     .WithMany(u => u.ChatMessages)
                     .HasForeignKey(e => e.SenderId)
                     .OnDelete(DeleteBehavior.Restrict);
-                
+
                 entity.HasOne(e => e.Task)
                     .WithMany(t => t.ChatMessages)
                     .HasForeignKey(e => e.RoomId)
@@ -385,12 +386,12 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.Type);
                 entity.HasIndex(e => e.IsRead);
                 entity.HasIndex(e => e.CreatedAt);
-                
+
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Body).IsRequired().HasMaxLength(1000);
                 entity.Property(e => e.ImageUrl).HasMaxLength(500);
                 entity.Property(e => e.RelatedEntityType).HasMaxLength(50);
-                
+
                 entity.HasOne(e => e.Recipient)
                     .WithMany(u => u.Notifications)
                     .HasForeignKey(e => e.RecipientId)
@@ -403,12 +404,12 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.EntityId);
                 entity.HasIndex(e => e.Type);
                 entity.HasIndex(e => e.UploadedBy);
-                
+
                 entity.Property(e => e.FileName).IsRequired().HasMaxLength(500);
                 entity.Property(e => e.FileUrl).IsRequired().HasMaxLength(1000);
                 entity.Property(e => e.FileType).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Description).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.Uploader)
                     .WithMany()
                     .HasForeignKey(e => e.UploadedBy)
@@ -423,7 +424,7 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.EntityId);
                 entity.HasIndex(e => e.Action);
                 entity.HasIndex(e => e.CreatedAt);
-                
+
                 entity.Property(e => e.Action).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.EntityType).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Notes).HasMaxLength(1000);
@@ -431,7 +432,7 @@ namespace Palloncino.Data
                 entity.Property(e => e.UserAgent).HasMaxLength(500);
                 entity.Property(e => e.OldValues);
                 entity.Property(e => e.NewValues);
-                
+
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.ActivityLogs)
                     .HasForeignKey(e => e.UserId)
@@ -446,34 +447,50 @@ namespace Palloncino.Data
                 entity.HasIndex(e => e.RelatedJobOrderId);
                 entity.HasIndex(e => e.PerformedBy);
                 entity.HasIndex(e => e.CreatedAt);
-                
+
                 entity.Property(e => e.Reason).HasMaxLength(500);
-                
+
                 entity.HasOne(e => e.InventoryItem)
                     .WithMany(i => i.InventoryMovements)
                     .HasForeignKey(e => e.InventoryItemId)
                     .OnDelete(DeleteBehavior.Restrict);
-                
+
                 entity.HasOne(e => e.JobOrder)
                     .WithMany()
                     .HasForeignKey(e => e.RelatedJobOrderId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+            modelBuilder.Entity<UserDeviceToken>(entity =>
+            {
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => e.Token).IsUnique();
+                entity.HasIndex(e => e.IsActive);
+            
+                entity.Property(e => e.Token).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.DeviceType).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.DeviceModel).HasMaxLength(100);
+                entity.Property(e => e.AppVersion).HasMaxLength(20);
+            
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
         // ========== Override SaveChanges for Auto-Audit ==========
-        
+
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             // Auto-set CreatedAt and UpdatedAt
             var entries = ChangeTracker.Entries()
-                .Where(e => e.Entity is BaseEntity && 
+                .Where(e => e.Entity is BaseEntity &&
                            (e.State == EntityState.Added || e.State == EntityState.Modified));
 
             foreach (var entityEntry in entries)
             {
                 var entity = (BaseEntity)entityEntry.Entity;
-                
+
                 if (entityEntry.State == EntityState.Added)
                 {
                     entity.CreatedAt = DateTime.UtcNow;
