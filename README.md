@@ -26,6 +26,74 @@ Palloncino is a comprehensive management system designed for a party and balloon
   - Firebase Admin SDK (Notifications)
 - **Reporting:** QuestPDF
 
+## 🔌 API Endpoints
+
+### 🔐 Authentication (`/api/Auth`)
+- `POST /login` - User login & token generation (Public)
+- `POST /register` - Customer self-registration (Public)
+- `POST /refresh` - Refresh JWT access token
+- `POST /logout` - Invalidate session
+- `POST /change-password` - Update user password
+- `POST /users/employee` - Create staff member (Admin)
+- `POST /device-token` - Register Firebase device token for push notifications
+
+### 📦 Catalog & Templates (`/api/catalog`, `/api/templates`)
+- `GET /catalog` - List all catalog items (Public)
+- `GET /catalog/{id}` - Get item details (Public)
+- `POST /catalog` - Create catalog item (Admin)
+- `PUT /catalog/{id}` - Update item (Admin)
+- `GET /templates` - List party packages (Public)
+- `GET /templates/{id}` - Package details & item breakdown (Public)
+- `POST /templates` - Create new package (Admin)
+- `POST /templates/{id}/duplicate` - Clone an existing template (Admin)
+
+### 🛒 Orders (`/api/orders`)
+- `POST /` - Place a regular order from catalog (Customer)
+- `POST /custom` - Request a custom design order with attachments (Customer)
+- `GET /my` - View current user's orders
+- `GET /` - List all orders with filters (Admin/Employee)
+- `PUT /{id}/approve` - Approve order & generate Job Order (Admin/Employee)
+- `PUT /{id}/reject` - Reject order with reason (Admin/Employee)
+- `PUT /{id}/status` - Manual status update (Admin/Employee)
+- `GET /statistics` - Order volume and revenue analytics (Admin)
+
+### 📄 Quotations (`/api/quotations`)
+- `POST /` - Create a quote for a custom order (Admin/Employee)
+- `GET /{id}` - View quotation details
+- `GET /{id}/pdf` - Generate printable PDF quotation
+- `PUT /{id}/approve` - Accept quotation (Customer/Admin)
+- `PUT /{id}/reject` - Decline quotation (Customer/Admin)
+
+### 🏗️ Job Orders (`/api/JobOrder`)
+- `GET /` - List all active jobs sorted by due date (Admin/Employee)
+- `GET /{id}/countdown` - Real-time countdown to delivery deadline
+- `PUT /{id}/status` - Update overall job status (Admin/Employee)
+
+### 📋 Tasks & Execution (`/api/tasks`)
+- `GET /tasks` - List assigned tasks for current user
+- `PUT /tasks/{id}/start` - Mark task as in-progress
+- `PUT /tasks/{id}/complete` - Mark task as finished
+- `PUT /tasks/{id}/skip` - Skip a task with justification (Admin/Employee)
+- `POST /tasks/{id}/subtasks` - Add granular sub-tasks (Admin/Employee)
+- `PUT /tasks/{id}/checklist` - Toggle checklist items (Loading, Preparation, Delivery)
+- `POST /tasks/{id}/inventory` - Link inventory items used during execution
+- `GET /tasks/dashboard` - Operational overview of all tasks (Admin/Employee)
+
+### 🎨 Design Tasks (`/api/tasks/.../design`)
+- `GET /tasks/{id}/design` - Design brief and reference images
+- `POST /tasks/{id}/design/uploads` - Upload design proposals/previews (Designer)
+- `PUT /tasks/{id}/design/status` - Move to `pending_review` or `completed`
+- `POST /tasks/{id}/design/feedback` - Add comments on designs (Customer/Admin)
+
+### 🏭 Inventory (`/api/Inventory`)
+- `GET /items` - List inventory with stock levels (Admin/Employee)
+- `POST /item` - Add new inventory item (Admin)
+- `POST /item/{id}/stock/add` - Increase stock (Admin/Employee)
+- `POST /item/{id}/stock/remove` - Decrease stock/Waste logging (Admin/Employee)
+- `POST /transfer` - Move stock between branches (Admin)
+- `GET /low-stock` - Alert list for reordering (Admin/Employee)
+- `GET /report` - Full inventory valuation report (Admin)
+
 ## 📁 Project Structure
 
 ```text
