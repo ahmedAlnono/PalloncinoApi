@@ -208,6 +208,73 @@ public class AuthController(
         });
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpPost("users/designer")]
+    public async Task<IActionResult> CreateDesigner([FromBody] RegisterRequestDto request)
+    {
+        if (request.BranchId == null)
+            throw new Exception("BranchId is required");
+        var branch = await branchService.GetBranchByIdAsync((int)request.BranchId);
+        if (branch == null)
+            return BadRequest(new { message = "Branch not found" });
+
+
+        // Create designer
+        var user = new User
+        {
+            FullName = request.FullName,
+            Email = request.Email,
+            Phone = request.Phone,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = UserRole.Designer,  // Fixed: Designer
+            BranchId = request.BranchId,
+            Status = UserStatus.Active,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = GetCurrentUserId()
+        };
+
+        await userService.CreateStaffUserAsync(user, user.Role, GetCurrentUserId());
+
+        return Ok(new
+        {
+            message = "Designer created successfully",
+            user = new { user.Id, user.FullName, user.Email, user.Role, user.BranchId }
+        });
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("users/driver")]
+    public async Task<IActionResult> CreateDriver([FromBody] CreateDriverDto request)
+    {
+        if(request.BranchId == null)
+            throw new Exception("branch is required");
+        var branch = await branchService.GetBranchByIdAsync((int)request.BranchId);
+        if (branch == null)
+            return BadRequest(new { message = "Branch not found" });
+
+        // Create driver
+        var user = new User
+        {
+            FullName = request.FullName,
+            Email = request.Email,
+            Phone = request.Phone,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = UserRole.Driver,  // Fixed: Driver
+            BranchId = request.BranchId,
+            Status = UserStatus.Active,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = GetCurrentUserId()
+        };
+
+        await userService.CreateStaffUserAsync(user, user.Role, GetCurrentUserId());
+
+        return Ok(new
+        {
+            message = "Driver created successfully",
+            user = new { user.Id, user.FullName, user.Email, user.Role, user.BranchId }
+        });
+    }
+
 
     [HttpGet("test")]
     public ActionResult Test()
@@ -264,6 +331,12 @@ public class AuthController(
         public string DeviceType { get; set; } = string.Empty;
         public string? DeviceModel { get; set; }
         public string? AppVersion { get; set; }
+    }
+
+    public class CreateDriverDto : RegisterRequestDto
+    {
+        public string? DriverLicenseNumber { get; set; }
+        public string? VehiclePlateNumber { get; set; }
     }
     private int GetCurrentUserId()
     {
