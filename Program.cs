@@ -10,6 +10,7 @@ using Palloncino.Services.Implementations;
 using Palloncino.Services.Interfaces;
 using Palloncino.Mappers;
 using Serilog;
+using Scalar.AspNetCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -323,6 +324,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseCors("AllowAll");
 }
+
+app.MapScalarApiReference(options =>
+{
+    options.WithTitle("Palloncino API");
+    options.WithTheme(ScalarTheme.Purple);
+    options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    options.WithDarkModeToggle(true);
+    options.WithSidebar(true);
+});
 
 app.UseStaticFiles();
 app.UseResponseCaching();
