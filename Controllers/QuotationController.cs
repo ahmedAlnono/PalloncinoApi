@@ -2,7 +2,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Palloncino.Models.DTOs;
-using Palloncino.Models.Entities;
 using Palloncino.Models.Enums;
 using Palloncino.Services.Interfaces;
 

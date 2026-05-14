@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Palloncino.Models.Entities;
-using Palloncino.Models.Enums;
 
 namespace Palloncino.Data
 {
@@ -484,16 +482,16 @@ namespace Palloncino.Data
             {
                 entity.HasIndex(e => e.TaskId);
                 entity.HasIndex(e => e.ChangedAt);
-            
+
                 entity.Property(e => e.PreviousStatus).HasMaxLength(50);
                 entity.Property(e => e.NewStatus).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Notes).HasMaxLength(500);
-            
+
                 entity.HasOne(e => e.Task)
                     .WithMany()
                     .HasForeignKey(e => e.TaskId)
                     .OnDelete(DeleteBehavior.Cascade);
-            
+
                 entity.HasOne(e => e.ChangedByUser)
                     .WithMany()
                     .HasForeignKey(e => e.ChangedBy)
