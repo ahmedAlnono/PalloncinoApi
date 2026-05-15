@@ -1,5 +1,3 @@
-using Palloncino.Models.Enums;
-
 namespace Palloncino.Models.DTOs
 {
     // ========== Base Classes ==========

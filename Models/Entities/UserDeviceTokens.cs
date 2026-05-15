@@ -1,5 +1,3 @@
-using Palloncino.Models.Entities;
-
 namespace Palloncino.Models.Entities;
 
 public class UserDeviceToken : BaseEntity
