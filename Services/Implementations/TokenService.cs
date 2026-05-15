@@ -32,13 +32,13 @@ public class TokenService : ITokenService
             new("jti", Guid.NewGuid().ToString()),
             new("role", user.Role.ToString()),
             new("userId", user.Id.ToString()),
-            new("branchId", user.BranchId.ToString() ?? ""),
+            new("branchId", user.BranchId?.ToString() ?? ""),
         };
         
         // Add branch-based claims for multi-branch support (Section 2.3 of SRS)
-        if (user.BranchId != 0)
+        if (user.BranchId.HasValue && user.BranchId.Value != 0)
         {
-            claims.Add(new Claim("branchId", user.BranchId.ToString()));
+            claims.Add(new Claim("branchId", user.BranchId.Value.ToString()));
             claims.Add(new Claim("branchName", user.Branch?.Name ?? ""));
         }
         

@@ -17,33 +17,33 @@ public class QuotationService(
     INotificationService notificationService) : IQuotationService
 {
     // ========== CRUD Operations ==========
-    
+
     public async Task<Quotation> CreateQuotationAsync(int orderId, List<CreateQuotationItemDto> items, string? notes = null, DateTime? validUntil = null)
     {
         var order = await context.Orders
             .Include(o => o.Customer)
             .FirstOrDefaultAsync(o => o.Id == orderId && !o.IsDeleted);
-        
+
         if (order == null)
             throw new InvalidOperationException($"Order with ID {orderId} not found");
-        
+
         if (order.Type != OrderType.Custom && order.Type != OrderType.Design)
             throw new InvalidOperationException("Quotations can only be created for custom or design orders");
-        
+
         if (items == null || !items.Any())
             throw new InvalidOperationException("Quotation must contain at least one item");
-        
+
         // Generate unique quotation number
         var quotationNumber = await GenerateQuotationNumberAsync();
-        
+
         // Calculate total amount
         decimal totalAmount = 0;
         var quotationItems = new List<QuotationItem>();
-        
+
         foreach (var itemDto in items)
         {
             var itemTotal = itemDto.Quantity * itemDto.UnitPrice;
-            
+
             // Apply discount
             if (itemDto.DiscountAmount.HasValue && itemDto.DiscountAmount.Value > 0)
             {
@@ -53,9 +53,9 @@ public class QuotationService(
             {
                 itemTotal -= itemTotal * (itemDto.DiscountPercentage.Value / 100);
             }
-            
+
             totalAmount += itemTotal;
-            
+
             var quotationItem = new QuotationItem
             {
                 ItemName = itemDto.ItemName,
@@ -71,10 +71,10 @@ public class QuotationService(
                 DisplayOrder = quotationItems.Count + 1,
                 CreatedAt = DateTime.UtcNow
             };
-            
+
             quotationItems.Add(quotationItem);
         }
-        
+
         var quotation = new Quotation
         {
             OrderId = orderId,
@@ -86,39 +86,39 @@ public class QuotationService(
             CreatedAt = DateTime.UtcNow,
             IsActive = true
         };
-        
+
         context.Quotations.Add(quotation);
         await context.SaveChangesAsync();
-        
+
         // Add items
         foreach (var item in quotationItems)
         {
             item.QuotationId = quotation.Id;
             context.QuotationItems.Add(item);
         }
-        
+
         await context.SaveChangesAsync();
-        
+
         logger.LogInformation("Quotation created: {QuotationNumber} for Order {OrderId}", quotationNumber, orderId);
-        
+
         return quotation;
     }
-    
+
     public async Task<Quotation> UpdateQuotationAsync(int quotationId, List<UpdateQuotationItemDto> items, string? notes = null)
     {
         var quotation = await GetQuotationByIdAsync(quotationId);
         if (quotation == null)
             throw new InvalidOperationException($"Quotation with ID {quotationId} not found");
-        
+
         if (!await CanModifyQuotationAsync(quotationId))
             throw new InvalidOperationException($"Quotation cannot be modified. Current status: {quotation.Status}");
-        
+
         // Update notes
         if (notes != null)
             quotation.Notes = notes;
-        
+
         quotation.UpdatedAt = DateTime.UtcNow;
-        
+
         // Update items
         foreach (var itemDto in items)
         {
@@ -142,57 +142,57 @@ public class QuotationService(
                     existingItem.IsRental = itemDto.IsRental.Value;
                 if (itemDto.Notes != null)
                     existingItem.Notes = itemDto.Notes;
-                
+
                 existingItem.UpdatedAt = DateTime.UtcNow;
             }
         }
-        
+
         // Recalculate total amount
         decimal totalAmount = 0;
         foreach (var item in quotation.QuotationItems ?? Enumerable.Empty<QuotationItem>())
         {
             var itemTotal = item.Quantity * item.UnitPrice;
-            
+
             if (item.DiscountAmount.HasValue && item.DiscountAmount.Value > 0)
                 itemTotal -= item.DiscountAmount.Value;
             else if (item.DiscountPercentage.HasValue && item.DiscountPercentage.Value > 0)
                 itemTotal -= itemTotal * (item.DiscountPercentage.Value / 100);
-            
+
             totalAmount += itemTotal;
         }
-        
+
         quotation.TotalAmount = totalAmount;
-        
+
         await context.SaveChangesAsync();
-        
+
         logger.LogInformation("Quotation updated: {QuotationNumber}", quotation.QuotationNumber);
-        
+
         return quotation;
     }
-    
+
     public async Task<bool> DeleteQuotationAsync(int quotationId)
     {
         var quotation = await GetQuotationByIdAsync(quotationId);
         if (quotation == null)
             return false;
-        
+
         if (quotation.Status == QuotationStatus.Approved || quotation.Status == QuotationStatus.Converted)
             throw new InvalidOperationException($"Cannot delete {quotation.Status} quotation");
-        
+
         // Remove items first
         var items = context.QuotationItems.Where(i => i.QuotationId == quotationId);
         context.QuotationItems.RemoveRange(items);
-        
+
         context.Quotations.Remove(quotation);
         await context.SaveChangesAsync();
-        
+
         logger.LogWarning("Quotation deleted: {QuotationNumber}", quotation.QuotationNumber);
-        
+
         return true;
     }
-    
+
     // ========== Queries ==========
-    
+
     public async Task<Quotation?> GetQuotationByIdAsync(int quotationId)
     {
         return await context.Quotations
@@ -201,7 +201,7 @@ public class QuotationService(
             .Include(q => q.QuotationItems)
             .FirstOrDefaultAsync(q => q.Id == quotationId && !q.IsDeleted);
     }
-    
+
     public async Task<IEnumerable<Quotation>> GetQuotationsByOrderAsync(int orderId)
     {
         return await context.Quotations
@@ -210,38 +210,38 @@ public class QuotationService(
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync();
     }
-    
+
     public async Task<Quotation?> GetActiveQuotationByOrderAsync(int orderId)
     {
         return await context.Quotations
             .Include(q => q.QuotationItems)
-            .Where(q => q.OrderId == orderId 
-                && !q.IsDeleted 
-                && q.Status != QuotationStatus.Expired 
+            .Where(q => q.OrderId == orderId
+                && !q.IsDeleted
+                && q.Status != QuotationStatus.Expired
                 && q.Status != QuotationStatus.Rejected
                 && q.Status != QuotationStatus.Converted)
             .OrderByDescending(q => q.CreatedAt)
             .FirstOrDefaultAsync();
     }
-    
+
     // ========== PDF Generation ==========
-    
+
     public async Task<byte[]> GenerateQuotationPdfAsync(int quotationId)
     {
         var quotation = await GetQuotationByIdAsync(quotationId);
         if (quotation == null)
             throw new InvalidOperationException($"Quotation with ID {quotationId} not found");
-        
+
         var order = await context.Orders
             .Include(o => o.Customer)
             .FirstOrDefaultAsync(o => o.Id == quotation.OrderId);
 
         if (order == null)
             throw new InvalidOperationException($"Order with ID {quotation.OrderId} not found");
-        
+
         if (order == null)
             throw new InvalidOperationException($"Order not found");
-        
+
         var pdfData = new QuotationPdfDto
         {
             Quotation = quotation,
@@ -257,25 +257,25 @@ public class QuotationService(
                 TaxNumber = "1234567890"
             }
         };
-        
+
         return GeneratePdfDocument(pdfData);
     }
-    
+
     public async Task<string> GenerateQuotationHtmlAsync(int quotationId)
     {
         var quotation = await GetQuotationByIdAsync(quotationId);
         if (quotation == null)
             throw new InvalidOperationException($"Quotation with ID {quotationId} not found");
-        
+
         var order = await context.Orders
             .Include(o => o.Customer)
             .FirstOrDefaultAsync(o => o.Id == quotation.OrderId);
 
         if (order == null)
             throw new InvalidOperationException($"Order with ID {quotation.OrderId} not found");
-        
+
         var sb = new StringBuilder();
-        
+
         sb.AppendLine("<!DOCTYPE html>");
         sb.AppendLine("<html>");
         sb.AppendLine("<head>");
@@ -297,26 +297,26 @@ public class QuotationService(
         </style>");
         sb.AppendLine("</head>");
         sb.AppendLine("<body>");
-        
+
         // Header
         sb.AppendLine("<div class='header'>");
         sb.AppendLine($"<div class='company-name'>Palloncino</div>");
         sb.AppendLine($"<div>Celebration & Party Planning</div>");
         sb.AppendLine("</div>");
-        
+
         // Title
         sb.AppendLine($"<div class='quotation-title'>QUOTATION #{quotation.QuotationNumber}</div>");
-        
+
         // Info Table
         sb.AppendLine("<table class='info-table'>");
         sb.AppendLine("<tr><td style='width:50%'><strong>Customer:</strong><br>" + (order.Customer?.FullName ?? "N/A") + "<br>" + (order.Customer?.Phone ?? "") + "<br>" + (order.Customer?.Email ?? "") + "</td>");
         sb.AppendLine($"<td><strong>Quotation Details:</strong><br>Date: {quotation.CreatedAt:yyyy-MM-dd}<br>Valid Until: <span class='valid-until'>{quotation.ValidUntil:yyyy-MM-dd}</span><br>Status: {quotation.Status}</td></tr>");
         sb.AppendLine("</table>");
-        
+
         // Items Table
         sb.AppendLine("<table class='items-table'>");
         sb.AppendLine("<tr><th>#</th><th>Item</th><th>Description</th><th>Quantity</th><th>Unit Price</th><th>Discount</th><th>Total</th></tr>");
-        
+
         int index = 1;
         foreach (var item in (quotation.QuotationItems ?? Enumerable.Empty<QuotationItem>()).OrderBy(i => i.DisplayOrder))
         {
@@ -325,13 +325,13 @@ public class QuotationService(
                 discount = $"-{item.DiscountAmount.Value:C}";
             else if (item.DiscountPercentage.HasValue && item.DiscountPercentage.Value > 0)
                 discount = $"-{item.DiscountPercentage.Value}%";
-            
+
             var itemTotal = item.Quantity * item.UnitPrice;
             if (item.DiscountAmount.HasValue)
                 itemTotal -= item.DiscountAmount.Value;
             else if (item.DiscountPercentage.HasValue)
                 itemTotal -= itemTotal * (item.DiscountPercentage.Value / 100);
-            
+
             sb.AppendLine($"<tr>");
             sb.AppendLine($"<td>{index++}</td>");
             sb.AppendLine($"<td>{item.ItemName}{(item.IsRental ? " (Rental)" : "")}</td>");
@@ -342,14 +342,14 @@ public class QuotationService(
             sb.AppendLine($"<td>{itemTotal:C}</td>");
             sb.AppendLine($"</tr>");
         }
-        
+
         sb.AppendLine("</table>");
-        
+
         // Total
         sb.AppendLine("<div class='total'>");
         sb.AppendLine($"Total Amount: {quotation.TotalAmount:C}");
         sb.AppendLine("</div>");
-        
+
         // Notes
         if (!string.IsNullOrEmpty(quotation.Notes))
         {
@@ -358,40 +358,40 @@ public class QuotationService(
             sb.AppendLine($"<p>{quotation.Notes}</p>");
             sb.AppendLine("</div>");
         }
-        
+
         // Footer
         sb.AppendLine("<div class='footer'>");
         sb.AppendLine("Thank you for choosing Palloncino!<br>");
         sb.AppendLine("This is a computer-generated document and does not require a signature.");
         sb.AppendLine("</div>");
-        
+
         sb.AppendLine("</body>");
         sb.AppendLine("</html>");
-        
+
         return sb.ToString();
     }
-    
+
     // ========== Status Management ==========
-    
+
     public async Task<Quotation> UpdateQuotationStatusAsync(int quotationId, QuotationStatus status, int updatedBy)
     {
         var quotation = await GetQuotationByIdAsync(quotationId);
         if (quotation == null)
             throw new InvalidOperationException($"Quotation with ID {quotationId} not found");
-        
+
         if (!IsValidStatusTransition(quotation.Status, status))
             throw new InvalidOperationException($"Invalid status transition from {quotation.Status} to {status}");
-        
+
         var oldStatus = quotation.Status;
         quotation.Status = status;
         quotation.UpdatedAt = DateTime.UtcNow;
         quotation.UpdatedBy = updatedBy;
-        
+
         await context.SaveChangesAsync();
-        
-        logger.LogInformation("Quotation {QuotationNumber} status changed from {OldStatus} to {NewStatus}", 
+
+        logger.LogInformation("Quotation {QuotationNumber} status changed from {OldStatus} to {NewStatus}",
             quotation.QuotationNumber, oldStatus, status);
-        
+
         // Notify customer if quotation is ready
         if (status == QuotationStatus.Sent)
         {
@@ -399,20 +399,20 @@ public class QuotationService(
                 ?? throw new InvalidOperationException("Quotation order not found");
             await notificationService.SendInternalNotificationAsync(
                 customerId,
-                "Quotation Ready", 
-                $"Your quotation #{quotation.QuotationNumber} is ready for review.", 
-                NotificationType.OrderUpdate, 
-                quotationId, 
+                "Quotation Ready",
+                $"Your quotation #{quotation.QuotationNumber} is ready for review.",
+                NotificationType.OrderUpdate,
+                quotationId,
                 "Quotation");
         }
-        
+
         return quotation;
     }
-    
+
     public async Task<Quotation> ApproveQuotationAsync(int quotationId, int approvedBy)
     {
         var quotation = await UpdateQuotationStatusAsync(quotationId, QuotationStatus.Approved, approvedBy);
-        
+
         // Convert to order items
         var order = await context.Orders.FindAsync(quotation.OrderId);
         if (order != null)
@@ -420,7 +420,7 @@ public class QuotationService(
             // Clear existing order items
             var existingItems = context.OrderItems.Where(oi => oi.OrderId == order.Id);
             context.OrderItems.RemoveRange(existingItems);
-            
+
             // Add quotation items as order items
             foreach (var item in quotation.QuotationItems)
             {
@@ -434,65 +434,65 @@ public class QuotationService(
                     IsRental = item.IsRental,
                     CreatedAt = DateTime.UtcNow
                 };
-                
+
                 context.OrderItems.Add(orderItem);
             }
-            
+
             order.TotalAmount = quotation.TotalAmount;
             order.Status = OrderStatus.Approved;
-            
+
             await context.SaveChangesAsync();
         }
-        
-        logger.LogInformation("Quotation {QuotationNumber} approved by User {ApprovedBy}", 
+
+        logger.LogInformation("Quotation {QuotationNumber} approved by User {ApprovedBy}",
             quotation.QuotationNumber, approvedBy);
-        
+
         return quotation;
     }
-    
+
     public async Task<Quotation> RejectQuotationAsync(int quotationId, int rejectedBy)
     {
         return await UpdateQuotationStatusAsync(quotationId, QuotationStatus.Rejected, rejectedBy);
     }
-    
+
     // ========== Validation ==========
-    
+
     public async Task<bool> QuotationExistsAsync(int quotationId)
     {
         return await context.Quotations
             .AnyAsync(q => q.Id == quotationId && !q.IsDeleted);
     }
-    
+
     public async Task<bool> CanModifyQuotationAsync(int quotationId)
     {
         var quotation = await GetQuotationByIdAsync(quotationId);
         if (quotation == null)
             return false;
-        
+
         return quotation.Status == QuotationStatus.Draft;
     }
-    
+
     // ========== Private Helper Methods ==========
-    
+
     private async Task<string> GenerateQuotationNumberAsync()
     {
         var date = DateTime.UtcNow;
         var prefix = $"Q-{date:yyyyMMdd}";
-        
+
         var lastQuotation = await context.Quotations
             .Where(q => q.QuotationNumber != null && q.QuotationNumber.StartsWith(prefix))
             .OrderByDescending(q => q.QuotationNumber)
             .FirstOrDefaultAsync();
-        
+
         if (lastQuotation == null)
             return $"{prefix}-0001";
-        
+
         var lastNumber = int.Parse(lastQuotation.QuotationNumber!.Split('-').Last());
         var newNumber = lastNumber + 1;
-        
+
         return $"{prefix}-{newNumber:D4}";
     }
-    
+
     private bool IsValidStatusTransition(QuotationStatus from, QuotationStatus to)
     {
         return (from, to) switch
@@ -507,12 +507,12 @@ public class QuotationService(
             _ => false
         };
     }
-    
+
     private byte[] GeneratePdfDocument(QuotationPdfDto data)
     {
         // QuestPDF requires license type
         QuestPDF.Settings.License = LicenseType.Community;
-        
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -520,7 +520,7 @@ public class QuotationService(
                 page.Size(PageSizes.A4);
                 page.Margin(40);
                 page.DefaultTextStyle(x => x.FontSize(10));
-                
+
                 page.Header()
                     .ShowOnce()
                     .Row(row =>
@@ -531,7 +531,7 @@ public class QuotationService(
                             col.Item().Text(data.CompanyInfo.Address).FontSize(9);
                             col.Item().Text($"Tel: {data.CompanyInfo.Phone} | Email: {data.CompanyInfo.Email}").FontSize(9);
                         });
-                        
+
                         row.ConstantItem(150).Column(col =>
                         {
                             col.Item().Border(1).Padding(10).Column(borderCol =>
@@ -541,7 +541,7 @@ public class QuotationService(
                             });
                         });
                     });
-                
+
                 page.Content().Column(col =>
                 {
                     // Customer Info
@@ -554,7 +554,7 @@ public class QuotationService(
                             customerCol.Item().Text(data.Customer.Phone).FontSize(9);
                             customerCol.Item().Text(data.Customer.Email).FontSize(9);
                         });
-                        
+
                         row.RelativeItem().Border(1).Padding(10).Column(detailsCol =>
                         {
                             detailsCol.Item().Text("QUOTATION DETAILS").FontSize(10).Bold();
@@ -563,7 +563,7 @@ public class QuotationService(
                             detailsCol.Item().Text($"Status: {data.Quotation.Status}").FontSize(9);
                         });
                     });
-                    
+
                     // Items Table
                     col.Item().PaddingTop(20).Table(table =>
                     {
@@ -577,7 +577,7 @@ public class QuotationService(
                             columns.ConstantColumn(80);
                             columns.ConstantColumn(100);
                         });
-                        
+
                         table.Header(header =>
                         {
                             header.Cell().Text("#").Bold();
@@ -588,13 +588,13 @@ public class QuotationService(
                             header.Cell().Text("Discount").Bold().AlignRight();
                             header.Cell().Text("Total").Bold().AlignRight();
                         });
-                        
+
                         int index = 1;
                         foreach (var item in (data.Quotation.QuotationItems ?? Enumerable.Empty<QuotationItem>()).OrderBy(i => i.DisplayOrder))
                         {
                             var itemTotal = item.Quantity * item.UnitPrice;
                             var discount = "";
-                            
+
                             if (item.DiscountAmount.HasValue && item.DiscountAmount.Value > 0)
                             {
                                 itemTotal -= item.DiscountAmount.Value;
@@ -605,7 +605,7 @@ public class QuotationService(
                                 itemTotal -= itemTotal * (item.DiscountPercentage.Value / 100);
                                 discount = $"-{item.DiscountPercentage.Value}%";
                             }
-                            
+
                             table.Cell().Text(index.ToString());
                             table.Cell().Text(item.ItemName + (item.IsRental ? " (Rental)" : ""));
                             table.Cell().Text(item.Description ?? "-");
@@ -613,18 +613,18 @@ public class QuotationService(
                             table.Cell().Text($"{item.UnitPrice:C}").AlignRight();
                             table.Cell().Text(discount).AlignRight();
                             table.Cell().Text($"{itemTotal:C}").AlignRight();
-                            
+
                             index++;
                         }
                     });
-                    
+
                     // Total
                     col.Item().PaddingTop(20).AlignRight().Column(totalCol =>
                     {
                         totalCol.Item().Text($"Subtotal: {data.Quotation.TotalAmount:C}").FontSize(10);
                         totalCol.Item().Text($"Total Amount: {data.Quotation.TotalAmount:C}").FontSize(14).Bold().FontColor("#ff6b9d");
                     });
-                    
+
                     // Notes
                     if (!string.IsNullOrEmpty(data.Quotation.Notes))
                     {
@@ -635,7 +635,7 @@ public class QuotationService(
                         });
                     }
                 });
-                
+
                 page.Footer()
                     .AlignCenter()
                     .Text(x =>
@@ -645,7 +645,7 @@ public class QuotationService(
                     });
             });
         });
-        
+
         return document.GeneratePdf();
     }
 }

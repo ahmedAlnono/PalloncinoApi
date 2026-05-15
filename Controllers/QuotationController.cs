@@ -68,7 +68,7 @@ public class QuotationController(
         var userId = GetCurrentUserId();
         var userRole = User.FindFirst("role")?.Value;
         
-        if (userRole == "Customer" && quotation.Order.CustomerId != userId)
+        if (userRole == "Customer" && quotation.Order?.CustomerId != userId)
             return Forbid();
         
         var quotationDto = mapper.Map<QuotationDto>(quotation);
@@ -115,7 +115,7 @@ public class QuotationController(
         var userId = GetCurrentUserId();
         var userRole = User.FindFirst("role")?.Value;
         
-        if (userRole == "Customer" && quotation.Order.CustomerId != userId)
+        if (userRole == "Customer" && quotation.Order?.CustomerId != userId)
             return Forbid();
         
         try

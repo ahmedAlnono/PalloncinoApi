@@ -329,8 +329,6 @@ app.MapScalarApiReference(options =>
     options.WithTitle("Palloncino API");
     options.WithTheme(ScalarTheme.Purple);
     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-    options.WithDarkModeToggle(true);
-    options.WithSidebar(true);
 });
 
 app.UseStaticFiles();
