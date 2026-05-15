@@ -184,7 +184,7 @@ public class AuthController(
             FullName = request.FullName,
             Email = request.Email,
             Phone = request.Phone,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            PasswordHash = request.Password,
             Role = UserRole.Employee,  // Fixed: Employee
             BranchId = request.BranchId,
             Status = UserStatus.Active,
@@ -222,7 +222,7 @@ public class AuthController(
             FullName = request.FullName,
             Email = request.Email,
             Phone = request.Phone,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            PasswordHash = request.Password,
             Role = UserRole.Designer,  // Fixed: Designer
             BranchId = request.BranchId,
             Status = UserStatus.Active,
@@ -255,7 +255,7 @@ public class AuthController(
             FullName = request.FullName,
             Email = request.Email,
             Phone = request.Phone,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            PasswordHash = request.Password,
             Role = UserRole.Driver,  // Fixed: Driver
             BranchId = request.BranchId,
             Status = UserStatus.Active,
