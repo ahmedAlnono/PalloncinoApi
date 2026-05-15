@@ -22,7 +22,7 @@ public class AuthController(
 {
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequestDto request)
+    public async Task<IActionResult> Login([FromBody]LoginRequestDto request)
     {
         var user = await userService.AuthenticateAsync(request.Email, request.Password);
 
@@ -144,7 +144,7 @@ public class AuthController(
             FullName = request.FullName,
             Email = request.Email,
             Phone = request.Phone,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            PasswordHash = request.Password,
             Role = UserRole.Customer,  // Fixed: Always Customer
             Status = UserStatus.Active,
             CreatedAt = DateTime.UtcNow
