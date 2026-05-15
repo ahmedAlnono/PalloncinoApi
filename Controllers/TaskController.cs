@@ -263,7 +263,8 @@ public class TaskController(
             {
                 // Task completed by someone else - BR-12 requires logging
                 await taskService.CompleteTaskForOthersAsync(taskId, userId, task.AssignedTo ?? 0);
-                updated = await taskService.GetTaskByIdAsync(taskId);
+                updated = await taskService.GetTaskByIdAsync(taskId)
+                ?? throw new Exception("task not found");
 
                 logger.LogWarning("Task {TaskId} was completed by User {CompleterId} instead of assigned user {AssigneeId}",
                     taskId, userId, task.AssignedTo);
@@ -669,9 +670,9 @@ public class TaskController(
                 .Select(a => new AttachmentDto
                 {
                     Id = a.Id,
-                    FileName = a.FileName,
-                    FileUrl = a.FileUrl,
-                    FileType = a.FileType,
+                    FileName = a.FileName ?? "",
+                    FileUrl = a.FileUrl ?? "",
+                    FileType = a.FileType?? "",
                     CreatedAt = a.CreatedAt
                 }).ToList();
         }
@@ -682,11 +683,11 @@ public class TaskController(
             .Select(a => new AttachmentDto
             {
                 Id = a.Id,
-                FileName = a.FileName,
-                FileUrl = a.FileUrl,
-                FileType = a.FileType,
+                FileName = a.FileName ?? "",
+                FileUrl = a.FileUrl?? "",
+                FileType = a.FileType?? "",
                 UploadedBy = a.UploadedBy,
-                UploadedByName = a.Uploader != null ? a.Uploader.FullName : null,
+                UploadedByName = a.Uploader != null ? a.Uploader.FullName : "",
                 CreatedAt = a.CreatedAt,
                 Description = a.Description
             })
@@ -696,7 +697,7 @@ public class TaskController(
         var response = new DesignTaskDetailsDto
         {
             TaskId = task.Id,
-            TaskTitle = task.Title,
+            TaskTitle = task.Title?? "",
             TaskDescription = task.Description,
             TaskStatus = task.Status,
             DueAt = task.DueAt,
@@ -902,7 +903,7 @@ public class TaskController(
         var taskDtos = tasks.Select(t => new PendingDesignTaskDto
         {
             TaskId = t.Id,
-            TaskTitle = t.Title,
+            TaskTitle = t.Title?? "",
             JobOrderId = t.JobOrderId,
             JobNumber = t.JobOrder?.JobNumber,
             CustomerName = t.JobOrder?.SourceOrder?.Customer?.FullName,
@@ -931,7 +932,7 @@ public class TaskController(
         var taskDtos = pendingReviewTasks.Select(t => new DesignReviewTaskDto
         {
             TaskId = t.Id,
-            TaskTitle = t.Title,
+            TaskTitle = t.Title?? "",
             JobOrderId = t.JobOrderId,
             JobNumber = t.JobOrder?.JobNumber,
             CustomerName = t.JobOrder?.SourceOrder?.Customer?.FullName,

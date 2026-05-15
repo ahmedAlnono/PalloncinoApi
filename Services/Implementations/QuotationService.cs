@@ -122,7 +122,8 @@ public class QuotationService(
         // Update items
         foreach (var itemDto in items)
         {
-            var existingItem = quotation.QuotationItems.FirstOrDefault(i => i.Id == itemDto.Id);
+            var existingItem = (quotation.QuotationItems ?? Enumerable.Empty<QuotationItem>())
+                .FirstOrDefault(i => i.Id == itemDto.Id);
             if (existingItem != null)
             {
                 if (itemDto.ItemName != null)
@@ -148,7 +149,7 @@ public class QuotationService(
         
         // Recalculate total amount
         decimal totalAmount = 0;
-        foreach (var item in quotation.QuotationItems)
+        foreach (var item in quotation.QuotationItems ?? Enumerable.Empty<QuotationItem>())
         {
             var itemTotal = item.Quantity * item.UnitPrice;
             
@@ -234,6 +235,9 @@ public class QuotationService(
         var order = await context.Orders
             .Include(o => o.Customer)
             .FirstOrDefaultAsync(o => o.Id == quotation.OrderId);
+
+        if (order == null)
+            throw new InvalidOperationException($"Order with ID {quotation.OrderId} not found");
         
         if (order == null)
             throw new InvalidOperationException($"Order not found");
@@ -242,7 +246,7 @@ public class QuotationService(
         {
             Quotation = quotation,
             Order = order,
-            Customer = order.Customer,
+            Customer = order.Customer ?? throw new InvalidOperationException("Order customer not found"),
             CompanyInfo = new CompanyInfoDto
             {
                 Name = "Palloncino",
@@ -266,6 +270,9 @@ public class QuotationService(
         var order = await context.Orders
             .Include(o => o.Customer)
             .FirstOrDefaultAsync(o => o.Id == quotation.OrderId);
+
+        if (order == null)
+            throw new InvalidOperationException($"Order with ID {quotation.OrderId} not found");
         
         var sb = new StringBuilder();
         
@@ -311,7 +318,7 @@ public class QuotationService(
         sb.AppendLine("<tr><th>#</th><th>Item</th><th>Description</th><th>Quantity</th><th>Unit Price</th><th>Discount</th><th>Total</th></tr>");
         
         int index = 1;
-        foreach (var item in quotation.QuotationItems.OrderBy(i => i.DisplayOrder))
+        foreach (var item in (quotation.QuotationItems ?? Enumerable.Empty<QuotationItem>()).OrderBy(i => i.DisplayOrder))
         {
             var discount = "";
             if (item.DiscountAmount.HasValue && item.DiscountAmount.Value > 0)
@@ -388,8 +395,10 @@ public class QuotationService(
         // Notify customer if quotation is ready
         if (status == QuotationStatus.Sent)
         {
+            var customerId = quotation.Order?.CustomerId
+                ?? throw new InvalidOperationException("Quotation order not found");
             await notificationService.SendInternalNotificationAsync(
-                quotation.Order.CustomerId, 
+                customerId,
                 "Quotation Ready", 
                 $"Your quotation #{quotation.QuotationNumber} is ready for review.", 
                 NotificationType.OrderUpdate, 
@@ -471,14 +480,14 @@ public class QuotationService(
         var prefix = $"Q-{date:yyyyMMdd}";
         
         var lastQuotation = await context.Quotations
-            .Where(q => q.QuotationNumber.StartsWith(prefix))
+            .Where(q => q.QuotationNumber != null && q.QuotationNumber.StartsWith(prefix))
             .OrderByDescending(q => q.QuotationNumber)
             .FirstOrDefaultAsync();
         
         if (lastQuotation == null)
             return $"{prefix}-0001";
         
-        var lastNumber = int.Parse(lastQuotation.QuotationNumber.Split('-').Last());
+        var lastNumber = int.Parse(lastQuotation.QuotationNumber!.Split('-').Last());
         var newNumber = lastNumber + 1;
         
         return $"{prefix}-{newNumber:D4}";
@@ -581,7 +590,7 @@ public class QuotationService(
                         });
                         
                         int index = 1;
-                        foreach (var item in data.Quotation.QuotationItems.OrderBy(i => i.DisplayOrder))
+                        foreach (var item in (data.Quotation.QuotationItems ?? Enumerable.Empty<QuotationItem>()).OrderBy(i => i.DisplayOrder))
                         {
                             var itemTotal = item.Quantity * item.UnitPrice;
                             var discount = "";

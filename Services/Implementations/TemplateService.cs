@@ -15,7 +15,7 @@ public class TemplateService(
     public async Task<Template> CreateTemplateAsync(Template template, List<TemplateItem> items)
     {
         // Validate unique name
-        if (await TemplateNameExistsAsync(template.Title))
+        if (await TemplateNameExistsAsync(template.Title??""))
             throw new InvalidOperationException($"Template name '{template.Title}' already exists");
         
         // Validate discount logic
@@ -66,7 +66,7 @@ public class TemplateService(
             throw new InvalidOperationException($"Template with ID {template.Id} not found");
         
         // Check name uniqueness
-        if (template.Title != existingTemplate.Title && await TemplateNameExistsAsync(template.Title, template.Id))
+        if (template.Title != existingTemplate.Title && await TemplateNameExistsAsync(template.Title ?? "", template.Id))
             throw new InvalidOperationException($"Template name '{template.Title}' already exists");
         
         // Validate discount logic
@@ -123,7 +123,7 @@ public class TemplateService(
         
         // Check if template is used in any orders
         var isUsed = await context.Orders
-            .AnyAsync(o => o.OrderItems.Any(oi => oi.CatalogItemId != null 
+            .AnyAsync(o => o.OrderItems != null && o.OrderItems.Any(oi => oi.CatalogItemId != null 
                 && context.TemplateItems.Any(ti => ti.CatalogItemId == oi.CatalogItemId && ti.TemplateId == templateId)));
         
         if (isUsed)
@@ -162,7 +162,7 @@ public class TemplateService(
     public async Task<Template?> GetTemplateByIdAsync(int templateId)
     {
         return await context.Templates
-            .Include(t => t.TemplateItems)
+            .Include(t => t.TemplateItems!)
                 .ThenInclude(ti => ti.CatalogItem)
             .FirstOrDefaultAsync(t => t.Id == templateId && !t.IsDeleted);
     }
@@ -170,7 +170,7 @@ public class TemplateService(
     public async Task<Template?> GetTemplateByNameAsync(string name)
     {
         return await context.Templates
-            .Include(t => t.TemplateItems)
+            .Include(t => t.TemplateItems!)
                 .ThenInclude(ti => ti.CatalogItem)
             .FirstOrDefaultAsync(t => t.Title == name && !t.IsDeleted);
     }
@@ -178,7 +178,7 @@ public class TemplateService(
     public async Task<IEnumerable<Template>> GetAllTemplatesAsync(bool includeInactive = false)
     {
         var query = context.Templates
-            .Include(t => t.TemplateItems)
+            .Include(t => t.TemplateItems!)
                 .ThenInclude(ti => ti.CatalogItem)
             .Where(t => !t.IsDeleted);
         
@@ -193,7 +193,7 @@ public class TemplateService(
     public async Task<IEnumerable<Template>> GetActiveTemplatesAsync()
     {
         return await context.Templates
-            .Include(t => t.TemplateItems)
+            .Include(t => t.TemplateItems!)
                 .ThenInclude(ti => ti.CatalogItem)
             .Where(t => t.IsActive && !t.IsDeleted)
             .OrderBy(t => t.Title)
@@ -203,7 +203,7 @@ public class TemplateService(
     public async Task<IEnumerable<Template>> GetTemplatesByCategoryAsync(string category)
     {
         return await context.Templates
-            .Include(t => t.TemplateItems)
+            .Include(t => t.TemplateItems!)
                 .ThenInclude(ti => ti.CatalogItem)
             .Where(t => t.Category == category && t.IsActive && !t.IsDeleted)
             .OrderBy(t => t.Title)
@@ -389,7 +389,7 @@ public class TemplateService(
         await context.SaveChangesAsync();
         
         // Copy items
-        foreach (var item in originalTemplate.TemplateItems)
+        foreach (var item in originalTemplate.TemplateItems ?? Enumerable.Empty<TemplateItem>())
         {
             var newItem = new TemplateItem
             {
@@ -522,12 +522,12 @@ public class TemplateService(
         return new TemplateStatisticsDto
         {
             TemplateId = templateId,
-            TemplateName = template.Title,
+            TemplateName = template.Title ?? string.Empty,
             TotalItems = totalItems,
             TotalQuantity = totalQuantity,
             OriginalTotalPrice = originalPrice,
             DiscountedPrice = template.AfterDiscount,
-            DiscountPercentage = ((originalPrice - template.AfterDiscount) / originalPrice) * 100,
+            DiscountPercentage = originalPrice <= 0 ? 0 : ((originalPrice - template.AfterDiscount) / originalPrice) * 100,
             OrderCount = orderCount,
             IsActive = template.IsActive,
             CreatedAt = template.CreatedAt,

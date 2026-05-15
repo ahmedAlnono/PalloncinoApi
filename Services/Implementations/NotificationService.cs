@@ -16,7 +16,8 @@ public class NotificationService : INotificationService
     private readonly ApplicationDbContext _context;
     private readonly ILogger<NotificationService> _logger;
     private readonly FirebaseMessaging? _firebaseMessaging;
-    
+
+    [Obsolete]
     public NotificationService(
         ApplicationDbContext context,
         ILogger<NotificationService> logger,

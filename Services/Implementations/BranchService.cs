@@ -15,7 +15,7 @@ public class BranchService(
     public async Task<Branch> CreateBranchAsync(Branch branch)
     {
         // Validate unique name
-        if (await BranchNameExistsAsync(branch.Name))
+        if (await BranchNameExistsAsync(branch.Name??""))
             throw new InvalidOperationException($"Branch name '{branch.Name}' already exists");
         
         branch.Status = BranchStatus.Active;

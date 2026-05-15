@@ -18,9 +18,9 @@ public class Order : BaseEntity
     
     // Navigation Properties
     public virtual User? Customer { get; set; }
-    public virtual ICollection<OrderItem>? OrderItems { get; set; }
-    public virtual ICollection<Attachment>? Attachments { get; set; }
-    public virtual ICollection<Quotation>? Quotations { get; set; }
+    public virtual ICollection<OrderItem>? OrderItems { get; set; } = [];
+    public virtual ICollection<Attachment>? Attachments { get; set; } = [];
+    public virtual ICollection<Quotation>? Quotations { get; set; } = [];
     public virtual JobOrder? JobOrder { get; set; }
     
     // Validations

@@ -33,7 +33,7 @@ namespace Palloncino.Data
         public DbSet<JobOrder> JobOrders { get; set; }
         public DbSet<JobOrderItem> JobOrderItems { get; set; }
         public DbSet<JobOrderItemHistory> JobOrderItemHistories { get; set; }
-        public DbSet<Palloncino.Models.Entities.Task> Tasks { get; set; }
+        public DbSet<Models.Entities.Task> Tasks { get; set; }
         public DbSet<SubTask> SubTasks { get; set; }
         public DbSet<ChecklistItem> ChecklistItems { get; set; }
 

@@ -163,6 +163,8 @@ public class InventoryService(
 
     public async Task<InventoryItem> CreateInventoryItemAsync(InventoryItem item)
     {
+        if(item.Sku == null)
+            throw new Exception("Sku is required");
         if (await SkuExistsAsync(item.Sku))
             throw new InvalidOperationException($"SKU '{item.Sku}' already exists");
 
@@ -195,6 +197,8 @@ public class InventoryService(
 
     public async Task<InventoryItem> UpdateInventoryItemAsync(InventoryItem item)
     {
+        if(item.Sku is null)
+            throw new Exception("Sku is required");
         var existingItem = await GetInventoryItemByIdAsync(item.Id);
         if (existingItem == null)
             throw new InvalidOperationException($"Inventory item with ID {item.Id} not found");
@@ -292,7 +296,9 @@ public class InventoryService(
             if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
                 var search = filter.SearchTerm.ToLower();
-                query = query.Where(i => i.Title.ToLower().Contains(search) || i.Sku.ToLower().Contains(search));
+                query = query.Where(i =>
+                    (i.Title ?? string.Empty).ToLower().Contains(search) ||
+                    (i.Sku ?? string.Empty).ToLower().Contains(search));
             }
 
             if (!filter.IncludeOutOfStock)
@@ -614,8 +620,8 @@ public class InventoryService(
             reportItems.Add(new InventoryItemReport
             {
                 Id = item.Id,
-                Title = item.Title,
-                Sku = item.Sku,
+                Title = item.Title ?? string.Empty,
+                Sku = item.Sku ?? string.Empty,
                 Category = item.Category ?? "Uncategorized",
                 CurrentStock = item.Quantity,
                 MinStockLevel = item.MinStockLevel ?? 0,

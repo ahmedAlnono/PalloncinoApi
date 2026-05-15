@@ -11,7 +11,6 @@ namespace Palloncino.Services.Implementations;
 public class JobOrderService(
     ApplicationDbContext context,
     ILogger<JobOrderService> logger,
-    ITaskService taskService,
     IInventoryService inventoryService) : IJobOrderService
 {
     // ========== CRUD Operations ==========
@@ -444,10 +443,10 @@ public class JobOrderService(
         {
             JobOrderId = jobOrderId,
             InventoryItemId = inventoryItemId,
-            ItemName = inventoryItem.Title,
+            ItemName = inventoryItem.Title ?? "",
             Sku = inventoryItem.Sku,
             QuantityUsed = quantity,
-            Unit = inventoryItem.Unit,
+            Unit = inventoryItem.Unit ?? "Piece",
             CostPerUnit = inventoryItem.PurchasePrice,
             SellingPricePerUnit = sellingPricePerUnit ?? inventoryItem.SalePrice,
             IsRental = false,
@@ -476,14 +475,16 @@ public class JobOrderService(
         
         if (item == null)
             return false;
+
+        var jobOrder = item.JobOrder ?? throw new InvalidOperationException($"JobOrder for item ID {jobOrderItemId} not found");
         
-        if (item.JobOrder.Status == JobOrderStatus.Completed || item.JobOrder.Status == JobOrderStatus.Cancelled)
-            throw new InvalidOperationException($"Cannot remove items from {item.JobOrder.Status} job order");
+        if (jobOrder.Status == JobOrderStatus.Completed || jobOrder.Status == JobOrderStatus.Cancelled)
+            throw new InvalidOperationException($"Cannot remove items from {jobOrder.Status} job order");
         
         // Return to inventory if not used
         if (item.Status != JobOrderItemStatus.Delivered && item.Status != JobOrderItemStatus.Prepared)
         {
-            await inventoryService.ReturnToInventoryAsync(item.InventoryItemId, item.QuantityUsed, $"Removed from JobOrder {item.JobOrder.JobNumber}");
+            await inventoryService.ReturnToInventoryAsync(item.InventoryItemId, item.QuantityUsed, $"Removed from JobOrder {jobOrder.JobNumber}");
         }
         
         context.JobOrderItems.Remove(item);
@@ -492,7 +493,7 @@ public class JobOrderService(
         await RecalculateJobOrderCostsAsync(item.JobOrderId);
         
         logger.LogInformation("Item removed from JobOrder {JobNumber}: {ItemName}", 
-            item.JobOrder.JobNumber, item.ItemName);
+            jobOrder.JobNumber, item.ItemName);
         
         return true;
     }
@@ -506,6 +507,9 @@ public class JobOrderService(
         
         if (item == null)
             throw new InvalidOperationException($"JobOrderItem with ID {jobOrderItemId} not found");
+
+        var jobOrder = item.JobOrder ?? throw new InvalidOperationException($"JobOrder for item ID {jobOrderItemId} not found");
+        var inventoryItem = item.InventoryItem ?? throw new InvalidOperationException($"InventoryItem for item ID {jobOrderItemId} not found");
         
         if (quantity <= 0)
             throw new InvalidOperationException("Quantity must be greater than zero");
@@ -516,15 +520,15 @@ public class JobOrderService(
         if (quantityDiff > 0)
         {
             // Need more stock
-            if (item.InventoryItem.Quantity < quantityDiff)
-                throw new InvalidOperationException($"Insufficient stock. Need {quantityDiff}, Available: {item.InventoryItem.Quantity}");
+            if (inventoryItem.Quantity < quantityDiff)
+                throw new InvalidOperationException($"Insufficient stock. Need {quantityDiff}, Available: {inventoryItem.Quantity}");
             
-            await inventoryService.ReserveInventoryAsync(item.InventoryItemId, quantityDiff, $"Increased quantity for JobOrder {item.JobOrder.JobNumber}");
+            await inventoryService.ReserveInventoryAsync(item.InventoryItemId, quantityDiff, $"Increased quantity for JobOrder {jobOrder.JobNumber}");
         }
         else if (quantityDiff < 0)
         {
             // Return excess stock
-            await inventoryService.ReturnToInventoryAsync(item.InventoryItemId, -quantityDiff, $"Decreased quantity for JobOrder {item.JobOrder.JobNumber}");
+            await inventoryService.ReturnToInventoryAsync(item.InventoryItemId, -quantityDiff, $"Decreased quantity for JobOrder {jobOrder.JobNumber}");
         }
         
         item.QuantityUsed = quantity;
@@ -534,7 +538,7 @@ public class JobOrderService(
         await RecalculateJobOrderCostsAsync(item.JobOrderId);
         
         logger.LogInformation("Item quantity updated for JobOrder {JobNumber}: {ItemName} from {OldQty} to {NewQty}", 
-            item.JobOrder.JobNumber, item.ItemName, oldQuantity, quantity);
+            jobOrder.JobNumber, item.ItemName, oldQuantity, quantity);
         
         return item;
     }
@@ -547,6 +551,8 @@ public class JobOrderService(
         
         if (item == null)
             throw new InvalidOperationException($"JobOrderItem with ID {jobOrderItemId} not found");
+
+        _ = item.JobOrder ?? throw new InvalidOperationException($"JobOrder for item ID {jobOrderItemId} not found");
         
         if (item.Status != JobOrderItemStatus.Pending)
             throw new InvalidOperationException($"Item already {item.Status}");
@@ -915,8 +921,8 @@ public class JobOrderService(
             TodayDeliveries = activeOrders.Count(j => j.DueAt.Date == DateTime.UtcNow.Date),
             OverdueOrders = activeOrders.Count(j => j.DueAt < DateTime.UtcNow),
             WaitingReturn = activeOrders.Count(j => j.Status == JobOrderStatus.WaitingReturn),
-            PendingTasks = await context.Tasks.CountAsync(t => t.JobOrder.BranchId == branchId && t.Status == Models.Enums.TaskStatus.Pending),
-            InProgressTasks = await context.Tasks.CountAsync(t => t.JobOrder.BranchId == branchId && t.Status == Models.Enums.TaskStatus.InProgress),
+            PendingTasks = await context.Tasks.CountAsync(t => t.JobOrder != null && t.JobOrder.BranchId == branchId && t.Status == Models.Enums.TaskStatus.Pending),
+            InProgressTasks = await context.Tasks.CountAsync(t => t.JobOrder != null && t.JobOrder.BranchId == branchId && t.Status == Models.Enums.TaskStatus.InProgress),
             UpcomingDeliveries = upcomingDeliveries.Take(5).Select(j => new UpcomingDeliveryDto
             {
                 JobOrderId = j.Id,
@@ -924,7 +930,7 @@ public class JobOrderService(
                 DueAt = j.DueAt,
                 CustomerName = j.SourceOrder?.Customer?.FullName ?? "N/A",
                 DeliveryAddress = j.DeliveryAddress ?? "N/A",
-                ItemsCount = j.JobOrderItems?.Count ?? 0
+                ItemsCount = j.JobOrderItems.Count
             }).ToList()
         };
     }
@@ -1137,20 +1143,22 @@ public class JobOrderService(
     private async Task<string> GenerateJobNumberAsync()
     {
         var date = DateTime.UtcNow;
-        var prefix = $"JO-{date:yyyyMMdd}";
+        var prefix = $"JO-{date:yyyy}-";
         
         var lastJob = await context.JobOrders
-            .Where(j => j.JobNumber.StartsWith(prefix))
+            .Where(j => j.JobNumber != null && j.JobNumber.StartsWith(prefix))
             .OrderByDescending(j => j.JobNumber)
             .FirstOrDefaultAsync();
         
-        if (lastJob == null)
-            return $"{prefix}-0001";
-        
-        var lastNumber = int.Parse(lastJob.JobNumber.Split('-').Last());
+        if (lastJob?.JobNumber is not { Length: > 0 })
+            return $"{prefix}0001";
+
+        var parts = lastJob.JobNumber.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length < 3 || !int.TryParse(parts[^1], out var lastNumber))
+            return $"{prefix}0001";
+
         var newNumber = lastNumber + 1;
-        
-        return $"{prefix}-{newNumber:D4}";
+        return $"{prefix}{newNumber:D4}";
     }
     
     private bool IsValidStatusTransition(JobOrderStatus from, JobOrderStatus to)

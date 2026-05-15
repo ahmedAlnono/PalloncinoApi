@@ -131,7 +131,7 @@ public class OrderService(
     {
         return await context.Orders
             .Include(o => o.Customer)
-            .Include(o => o.OrderItems)
+            .Include(o => o.OrderItems!)
                 .ThenInclude(oi => oi.CatalogItem)
             .Include(o => o.Attachments)
             .Include(o => o.JobOrder)

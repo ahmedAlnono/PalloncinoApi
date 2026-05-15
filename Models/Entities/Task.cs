@@ -19,9 +19,9 @@ public class Task : BaseEntity
     public virtual JobOrder? JobOrder { get; set; }
     public virtual User? Assignee { get; set; }
     public virtual User? Completer { get; set; }
-    public virtual ICollection<SubTask>? SubTasks { get; set; }
-    public virtual ICollection<ChecklistItem>? ChecklistItems { get; set; }
-    public virtual ICollection<ChatMessage>? ChatMessages { get; set; }
+    public virtual ICollection<SubTask> SubTasks { get; set; } = new List<SubTask>();
+    public virtual ICollection<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
+    public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
     
     // Validations
     // - DueAt based on JobOrder.DueAt

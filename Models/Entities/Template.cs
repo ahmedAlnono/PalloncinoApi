@@ -9,7 +9,7 @@ public class Template : BaseEntity
     public string? ImageUrl { get; set; }
     public string? Category { get; set; } // e.g., "Graduation", "Birthday", "Engagement"    
     // Navigation Properties
-    public virtual ICollection<TemplateItem>? TemplateItems { get; set; }
+    public virtual ICollection<TemplateItem> TemplateItems { get; set; } = [];
     public virtual ICollection<Order>? Orders { get; set; }
     
     // Validations

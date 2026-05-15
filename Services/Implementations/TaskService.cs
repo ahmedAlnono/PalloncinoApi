@@ -458,7 +458,7 @@ public class TaskService(
         if (subTask == null)
             throw new InvalidOperationException($"SubTask with ID {subTaskId} not found");
         
-        if (subTask.Task.Status == TaskStatus.Completed)
+        if (subTask.Task!.Status == TaskStatus.Completed)
             throw new InvalidOperationException("Cannot update sub-task of completed task");
         
         if (title != null)
@@ -483,7 +483,7 @@ public class TaskService(
         if (subTask == null)
             return false;
         
-        if (subTask.Task.Status == TaskStatus.Completed)
+        if (subTask.Task!.Status == TaskStatus.Completed)
             throw new InvalidOperationException("Cannot remove sub-task from completed task");
         
         context.SubTasks.Remove(subTask);
@@ -503,7 +503,7 @@ public class TaskService(
         if (subTask == null)
             throw new InvalidOperationException($"SubTask with ID {subTaskId} not found");
         
-        if (subTask.Task.Status == TaskStatus.Completed)
+        if (subTask.Task!.Status == TaskStatus.Completed)
             throw new InvalidOperationException("Cannot complete sub-task of completed task");
         
         subTask.IsCompleted = true;
@@ -746,7 +746,7 @@ public class TaskService(
         return new TaskStatisticsDto
         {
             TaskId = taskId,
-            TaskTitle = task.Title,
+            TaskTitle = task.Title ?? "",
             Type = task.Type,
             TotalSubTasks = subTasks.Count(),
             CompletedSubTasks = completedSubTasks,
@@ -786,7 +786,7 @@ public class TaskService(
             .Select(t => new UpcomingTaskDto
             {
                 TaskId = t.Id,
-                TaskTitle = t.Title,
+                TaskTitle = t.Title ?? "",
                 JobNumber = t.JobOrder?.JobNumber ?? "N/A",
                 DueAt = t.DueAt,
                 Type = t.Type,

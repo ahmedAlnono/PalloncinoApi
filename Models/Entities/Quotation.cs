@@ -14,7 +14,7 @@ public class Quotation : BaseEntity
     
     // Navigation Properties
     public virtual Order? Order { get; set; }
-    public virtual ICollection<QuotationItem>? QuotationItems { get; set; }
+    public virtual ICollection<QuotationItem> QuotationItems { get; set; } = [];
     
     // Validations
     // - TotalAmount > 0
