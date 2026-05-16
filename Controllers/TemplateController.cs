@@ -44,9 +44,7 @@ public class TemplateController(
         return Ok(templateDtos);
     }
     
-    [HttpGet("{id}")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetTemplateById(int id)
+    private async Task<IActionResult> GetTemplateById(int id)
     {
         var template = await templateService.GetTemplateByIdAsync(id);
         if (template == null)

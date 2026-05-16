@@ -56,6 +56,7 @@ public class CreateTemplateDto
 public class CreateTemplateItemDto
 {
     [Required]
+    [Range(1,int.MaxValue)]
     public int CatalogItemId { get; set; }
 
     [Required]
