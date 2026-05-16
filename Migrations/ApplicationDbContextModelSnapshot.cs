@@ -92,7 +92,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ActivityLogs");
+                    b.ToTable("ActivityLogs", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.Attachment", b =>
@@ -169,7 +169,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("UploadedBy");
 
-                    b.ToTable("Attachments");
+                    b.ToTable("Attachments", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.Branch", b =>
@@ -228,7 +228,7 @@ namespace Palloncino.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Branches");
+                    b.ToTable("Branches", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.CatalogItem", b =>
@@ -303,7 +303,7 @@ namespace Palloncino.Migrations
                     b.HasIndex("Sku")
                         .IsUnique();
 
-                    b.ToTable("CatalogItems");
+                    b.ToTable("CatalogItems", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.ChatMessage", b =>
@@ -371,7 +371,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("ChatMessages");
+                    b.ToTable("ChatMessages", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.ChecklistItem", b =>
@@ -441,7 +441,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("ChecklistItems");
+                    b.ToTable("ChecklistItems", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.DesignStatusHistory", b =>
@@ -504,7 +504,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("DesignStatusHistories");
+                    b.ToTable("DesignStatusHistories", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.InventoryItem", b =>
@@ -582,7 +582,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("InventoryItems");
+                    b.ToTable("InventoryItems", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.InventoryMovement", b =>
@@ -651,7 +651,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Type");
 
-                    b.ToTable("InventoryMovements");
+                    b.ToTable("InventoryMovements", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.JobOrder", b =>
@@ -748,7 +748,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("JobOrders");
+                    b.ToTable("JobOrders", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.JobOrderItem", b =>
@@ -878,7 +878,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("JobOrderItems");
+                    b.ToTable("JobOrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.JobOrderItemHistory", b =>
@@ -943,7 +943,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("PerformedBy");
 
-                    b.ToTable("JobOrderItemHistories");
+                    b.ToTable("JobOrderItemHistories", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.Notification", b =>
@@ -1022,7 +1022,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Type");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.Order", b =>
@@ -1112,7 +1112,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Type");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.OrderItem", b =>
@@ -1179,7 +1179,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.Payment", b =>
@@ -1259,7 +1259,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("StripePaymentIntentId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.Quotation", b =>
@@ -1325,7 +1325,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("Quotations");
+                    b.ToTable("Quotations", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.QuotationItem", b =>
@@ -1406,7 +1406,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("QuotationId");
 
-                    b.ToTable("QuotationItems");
+                    b.ToTable("QuotationItems", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.SubTask", b =>
@@ -1474,7 +1474,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("SubTasks");
+                    b.ToTable("SubTasks", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.Task", b =>
@@ -1555,7 +1555,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Type");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.Template", b =>
@@ -1613,7 +1613,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Category");
 
-                    b.ToTable("Templates");
+                    b.ToTable("Templates", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.TemplateItem", b =>
@@ -1662,7 +1662,7 @@ namespace Palloncino.Migrations
                     b.HasIndex("TemplateId", "CatalogItemId")
                         .IsUnique();
 
-                    b.ToTable("TemplateItems");
+                    b.ToTable("TemplateItems", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.User", b =>
@@ -1752,7 +1752,22 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("Role");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "admin@palloncino.com",
+                            FullName = "System Administrator",
+                            IsActive = true,
+                            IsDeleted = false,
+                            PasswordHash = "$2a$11$M/iufdsSpA3jvv/8Oe1/eOS1ORuoGHXmj008HtGOOWuUp9x0ICwh6",
+                            Phone = "0500000000",
+                            Role = 2,
+                            Status = 1
+                        });
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.UserDeviceToken", b =>
@@ -1818,7 +1833,7 @@ namespace Palloncino.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserDeviceTokens");
+                    b.ToTable("UserDeviceTokens", (string)null);
                 });
 
             modelBuilder.Entity("Palloncino.Models.Entities.ActivityLog", b =>

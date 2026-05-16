@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Palloncino.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -144,6 +144,7 @@ namespace Palloncino.Migrations
                     LastLoginAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     RefreshToken = table.Column<string>(type: "TEXT", nullable: true),
                     RefreshTokenExpiry = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    StripeCustomerId = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
@@ -280,6 +281,7 @@ namespace Palloncino.Migrations
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     Source = table.Column<int>(type: "INTEGER", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
+                    PaymentStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Notes = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
                     CustomDesignDescription = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true),
@@ -311,6 +313,38 @@ namespace Palloncino.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserDeviceTokens",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Token = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
+                    DeviceType = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    DeviceModel = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    AppVersion = table.Column<string>(type: "TEXT", maxLength: 20, nullable: true),
+                    LastUsedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<int>(type: "INTEGER", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "INTEGER", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DeletedBy = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserDeviceTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserDeviceTokens_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -446,6 +480,42 @@ namespace Palloncino.Migrations
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    OrderId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Currency = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
+                    Status = table.Column<int>(type: "INTEGER", nullable: false),
+                    StripeCheckoutSessionId = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
+                    StripePaymentIntentId = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
+                    StripeCustomerId = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
+                    PaidAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    FailureReason = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
+                    IdempotencyKey = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<int>(type: "INTEGER", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "INTEGER", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DeletedBy = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payments_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -811,6 +881,44 @@ namespace Palloncino.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DesignStatusHistories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TaskId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PreviousStatus = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    NewStatus = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    ChangedBy = table.Column<int>(type: "INTEGER", nullable: false),
+                    ChangedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Notes = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<int>(type: "INTEGER", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "INTEGER", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DeletedBy = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DesignStatusHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DesignStatusHistories_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DesignStatusHistories_Users_ChangedBy",
+                        column: x => x.ChangedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubTasks",
                 columns: table => new
                 {
@@ -848,6 +956,11 @@ namespace Palloncino.Migrations
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "BranchId", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "FullName", "IsActive", "IsDeleted", "LastLoginAt", "PasswordHash", "Phone", "ProfileImageUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "Status", "StripeCustomerId", "UpdatedAt", "UpdatedBy" },
+                values: new object[] { 5, null, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, null, "admin@palloncino.com", "System Administrator", true, false, null, "$2a$11$M/iufdsSpA3jvv/8Oe1/eOS1ORuoGHXmj008HtGOOWuUp9x0ICwh6", "0500000000", null, null, null, 2, 1, null, null, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ActivityLogs_Action",
@@ -954,6 +1067,21 @@ namespace Palloncino.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ChecklistItems_TaskId",
                 table: "ChecklistItems",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DesignStatusHistories_ChangedAt",
+                table: "DesignStatusHistories",
+                column: "ChangedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DesignStatusHistories_ChangedBy",
+                table: "DesignStatusHistories",
+                column: "ChangedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DesignStatusHistories_TaskId",
+                table: "DesignStatusHistories",
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(
@@ -1135,6 +1263,11 @@ namespace Palloncino.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Orders_PaymentStatus",
+                table: "Orders",
+                column: "PaymentStatus");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Orders_Status",
                 table: "Orders",
                 column: "Status");
@@ -1148,6 +1281,26 @@ namespace Palloncino.Migrations
                 name: "IX_Orders_Type",
                 table: "Orders",
                 column: "Type");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_OrderId",
+                table: "Payments",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_Status",
+                table: "Payments",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_StripeCheckoutSessionId",
+                table: "Payments",
+                column: "StripeCheckoutSessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_StripePaymentIntentId",
+                table: "Payments",
+                column: "StripePaymentIntentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_QuotationItems_CatalogItemId",
@@ -1242,6 +1395,22 @@ namespace Palloncino.Migrations
                 column: "Category");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserDeviceTokens_IsActive",
+                table: "UserDeviceTokens",
+                column: "IsActive");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserDeviceTokens_Token",
+                table: "UserDeviceTokens",
+                column: "Token",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserDeviceTokens_UserId",
+                table: "UserDeviceTokens",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_BranchId",
                 table: "Users",
                 column: "BranchId");
@@ -1280,6 +1449,9 @@ namespace Palloncino.Migrations
                 name: "ChecklistItems");
 
             migrationBuilder.DropTable(
+                name: "DesignStatusHistories");
+
+            migrationBuilder.DropTable(
                 name: "InventoryMovements");
 
             migrationBuilder.DropTable(
@@ -1292,6 +1464,9 @@ namespace Palloncino.Migrations
                 name: "OrderItems");
 
             migrationBuilder.DropTable(
+                name: "Payments");
+
+            migrationBuilder.DropTable(
                 name: "QuotationItems");
 
             migrationBuilder.DropTable(
@@ -1299,6 +1474,9 @@ namespace Palloncino.Migrations
 
             migrationBuilder.DropTable(
                 name: "TemplateItems");
+
+            migrationBuilder.DropTable(
+                name: "UserDeviceTokens");
 
             migrationBuilder.DropTable(
                 name: "JobOrderItems");

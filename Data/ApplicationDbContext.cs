@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Palloncino.Models.Entities;
+using Palloncino.Models.Enums;
 
 namespace Palloncino.Data
 {
@@ -87,6 +88,24 @@ namespace Palloncino.Data
                     .WithMany(b => b.Users)
                     .HasForeignKey(e => e.BranchId)
                     .OnDelete(DeleteBehavior.Restrict);
+                entity.HasData([
+                    new User{
+                            Id = 5,
+                            FullName = "System Administrator",
+                            Email = "admin@palloncino.com",
+                            Phone = "0500000000",
+                            PasswordHash = "$2a$11$M/iufdsSpA3jvv/8Oe1/eOS1ORuoGHXmj008HtGOOWuUp9x0ICwh6",
+                            Role = UserRole.Admin,
+                            Status = UserStatus.Active,
+                            CreatedAt = new DateTime(2026,1,1,0,0,0,DateTimeKind.Utc),
+                            ProfileImageUrl = null,
+                            BranchId = null,
+                            LastLoginAt = null,
+                            RefreshToken = null,
+                            RefreshTokenExpiry = null,
+                            StripeCustomerId = null
+                    }
+                ]);
             });
 
             // ========== Branch Configuration ==========
