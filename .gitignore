@@ -30,7 +30,8 @@ packages/
 *.ipdb
 *.vcxproj
 *.vcxproj.filters
-
+*.sqlite-shm
+*.sqlite-wal
 ## Test results
 TestResults/
 *.coverage
