@@ -337,7 +337,8 @@ public class AuthController(
     }
     private int GetCurrentUserId()
     {
-        string? id = (User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value)
+        string? id = (User.Claims.FirstOrDefault(u => u.Type == "userId")?.Value)
+        ??User.Claims.ToList()[0].Value
         ?? throw new Exception("Id not found");
         return int.Parse(id);
     }
