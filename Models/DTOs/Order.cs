@@ -55,6 +55,7 @@ public class OrderDto : BaseDto
     public OrderType Type { get; set; }
     public OrderSource Source { get; set; }
     public OrderStatus Status { get; set; }
+    public PaymentStatus PaymentStatus { get; set; }
     public decimal TotalAmount { get; set; }
     public string? Notes { get; set; }
     public string? CustomDesignDescription { get; set; }

@@ -156,6 +156,28 @@ public class NotificationService : INotificationService
             customerId, orderId);
     }
     
+    public async Task SendPaymentConfirmationNotificationAsync(int orderId, int customerId)
+    {
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+        if (order == null)
+        {
+            _logger.LogWarning("Order {OrderId} not found for payment notification", orderId);
+            return;
+        }
+
+        var title = "Payment Received";
+        var body = $"Your payment of {order.TotalAmount:C} for order #{orderId} was successful. We'll process your order shortly.";
+
+        await SaveNotification(customerId, title, body, NotificationType.PaymentConfirmation, orderId, "Order");
+        await SendPushNotificationAsync(customerId, title, body, new Dictionary<string, string>
+        {
+            { "type", "payment_confirmation" },
+            { "orderId", orderId.ToString() }
+        });
+
+        _logger.LogInformation("Payment confirmation sent to Customer {CustomerId} for Order {OrderId}", customerId, orderId);
+    }
+
     public async Task SendOrderRejectedNotification(int orderId, int customerId, string reason)
     {
         var order = await _context.Orders

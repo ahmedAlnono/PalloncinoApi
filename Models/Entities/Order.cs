@@ -8,6 +8,7 @@ public class Order : BaseEntity
     public OrderType Type { get; set; } // Regular, Custom, Design
     public OrderSource Source { get; set; } // MobileApp, Website, WalkIn
     public OrderStatus Status { get; set; } // PendingReview, Approved, Rejected, Converted
+    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.NotRequired;
     public decimal TotalAmount { get; set; }
     public string? Notes { get; set; }
     public string? CustomDesignDescription { get; set; } // For custom orders
@@ -22,6 +23,7 @@ public class Order : BaseEntity
     public virtual ICollection<Attachment>? Attachments { get; set; } = [];
     public virtual ICollection<Quotation>? Quotations { get; set; } = [];
     public virtual JobOrder? JobOrder { get; set; }
+    public virtual ICollection<Payment>? Payments { get; set; } = [];
     
     // Validations
     // - TotalAmount >= 0

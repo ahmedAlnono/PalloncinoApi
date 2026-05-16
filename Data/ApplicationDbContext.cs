@@ -28,6 +28,7 @@ namespace Palloncino.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Quotation> Quotations { get; set; }
         public DbSet<QuotationItem> QuotationItems { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         // Job Orders & Tasks
         public DbSet<JobOrder> JobOrders { get; set; }
@@ -79,6 +80,7 @@ namespace Palloncino.Data
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Phone).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.StripeCustomerId).HasMaxLength(200);
 
                 // Relationships
                 entity.HasOne(e => e.Branch)
@@ -161,6 +163,7 @@ namespace Palloncino.Data
             {
                 entity.HasIndex(e => e.CustomerId);
                 entity.HasIndex(e => e.Status);
+                entity.HasIndex(e => e.PaymentStatus);
                 entity.HasIndex(e => e.Type);
                 entity.HasIndex(e => e.CreatedAt);
 
@@ -188,6 +191,28 @@ namespace Palloncino.Data
                     .WithMany(o => o.OrderItems)
                     .HasForeignKey(e => e.OrderId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ========== Payment Configuration ==========
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.HasIndex(e => e.OrderId);
+                entity.HasIndex(e => e.Status);
+                entity.HasIndex(e => e.StripeCheckoutSessionId);
+                entity.HasIndex(e => e.StripePaymentIntentId);
+
+                entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Currency).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.StripeCheckoutSessionId).HasMaxLength(200);
+                entity.Property(e => e.StripePaymentIntentId).HasMaxLength(200);
+                entity.Property(e => e.StripeCustomerId).HasMaxLength(200);
+                entity.Property(e => e.FailureReason).HasMaxLength(500);
+                entity.Property(e => e.IdempotencyKey).HasMaxLength(100);
+
+                entity.HasOne(e => e.Order)
+                    .WithMany(o => o.Payments)
+                    .HasForeignKey(e => e.OrderId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // ========== Quotation Configuration ==========

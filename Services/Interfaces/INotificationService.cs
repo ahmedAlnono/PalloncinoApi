@@ -16,6 +16,7 @@ public interface INotificationService
     Task SendNewCustomOrderNotification(int orderId);
     Task SendOrderApprovedNotification(int orderId, int customerId);
     Task SendOrderRejectedNotification(int orderId, int customerId, string reason);
+    Task SendPaymentConfirmationNotificationAsync(int orderId, int customerId);
     
     // ========== Job Order Notifications ==========
     Task SendTaskReminderNotification(int taskId, int assigneeId);

@@ -8,8 +8,10 @@ using Palloncino.Data;
 using Palloncino.Services.Implementations;
 using Palloncino.Services.Interfaces;
 using Palloncino.Mappers;
+using Palloncino.Models.Configuration;
 using Serilog;
 using Scalar.AspNetCore;
+using Stripe;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -159,7 +161,7 @@ builder.Services.AddAuthorizationBuilder()
 // ========== 6. Register Custom Services ==========
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITokenService, Palloncino.Services.Implementations.TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
@@ -169,7 +171,14 @@ builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IQuotationService, QuotationService>();
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
+builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+var stripeSecretKey = builder.Configuration[$"{StripeOptions.SectionName}:SecretKey"];
+if (!string.IsNullOrWhiteSpace(stripeSecretKey))
+    StripeConfiguration.ApiKey = stripeSecretKey;
 
 
 // builder.Services.AddScoped<IReportService, ReportService>();

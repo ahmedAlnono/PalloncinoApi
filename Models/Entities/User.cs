@@ -15,6 +15,7 @@ public class User : BaseEntity
     public DateTime? LastLoginAt { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiry { get; set; }
+    public string? StripeCustomerId { get; set; }
     
     // Navigation Properties
     public virtual Branch? Branch { get; set; }

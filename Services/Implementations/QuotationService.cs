@@ -439,7 +439,8 @@ public class QuotationService(
             }
 
             order.TotalAmount = quotation.TotalAmount;
-            order.Status = OrderStatus.Approved;
+            order.PaymentStatus = quotation.TotalAmount > 0 ? PaymentStatus.Unpaid : PaymentStatus.NotRequired;
+            order.Status = OrderStatus.PendingReview;
 
             await context.SaveChangesAsync();
         }

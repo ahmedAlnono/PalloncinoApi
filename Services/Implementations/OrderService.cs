@@ -40,6 +40,7 @@ public class OrderService(
             totalAmount += order.DeliveryFee.Value;
         
         order.TotalAmount = totalAmount;
+        order.PaymentStatus = totalAmount > 0 ? PaymentStatus.Unpaid : PaymentStatus.NotRequired;
         order.Status = OrderStatus.PendingReview;
         order.Source = OrderSource.MobileApp;
         order.CreatedAt = DateTime.UtcNow;
@@ -88,6 +89,7 @@ public class OrderService(
         order.Status = OrderStatus.PendingReview;
         order.Source = OrderSource.MobileApp;
         order.TotalAmount = 0; // Will be set after quotation
+        order.PaymentStatus = PaymentStatus.NotRequired;
         order.CreatedAt = DateTime.UtcNow;
         order.IsActive = true;
         
@@ -168,6 +170,9 @@ public class OrderService(
         
         if (order.Status != OrderStatus.PendingReview)
             throw new InvalidOperationException($"Order cannot be approved. Current status: {order.Status}");
+
+        if (order.TotalAmount > 0 && order.PaymentStatus != PaymentStatus.Paid)
+            throw new InvalidOperationException("Order cannot be approved until payment is completed");
         
         order.Status = OrderStatus.Approved;
         order.UpdatedAt = DateTime.UtcNow;
