@@ -22,7 +22,7 @@ public class AuthController(
 {
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody]LoginRequestDto request)
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
         var user = await userService.AuthenticateAsync(request.Email, request.Password);
 
@@ -243,7 +243,7 @@ public class AuthController(
     [HttpPost("users/driver")]
     public async Task<IActionResult> CreateDriver([FromBody] CreateDriverDto request)
     {
-        if(request.BranchId == null)
+        if (request.BranchId == null)
             throw new Exception("branch is required");
         var branch = await branchService.GetBranchByIdAsync((int)request.BranchId);
         if (branch == null)
@@ -337,9 +337,6 @@ public class AuthController(
     }
     private int GetCurrentUserId()
     {
-        string? id = (User.Claims.FirstOrDefault(u => u.Type == "userId")?.Value)
-        ??User.Claims.ToList()[0].Value
-        ?? throw new Exception("Id not found");
-        return int.Parse(id);
+        return int.Parse(User.FindFirst("userId")?.Value ?? "0");
     }
 }

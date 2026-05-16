@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -7,11 +8,12 @@ using Microsoft.OpenApi;
 using Palloncino.Data;
 using Palloncino.Services.Implementations;
 using Palloncino.Services.Interfaces;
-using Palloncino.Mappers;
+using Palloncino.Mappings;
 using Palloncino.Models.Configuration;
 using Serilog;
 using Scalar.AspNetCore;
 using Stripe;
+using Microsoft.Extensions.DependencyInjection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -213,7 +215,8 @@ builder.Services.AddResponseCaching();
 // ========== 9. Configure Memory Cache ==========
 builder.Services.AddMemoryCache();
 
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>(), typeof(MappingProfile));
+
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -347,7 +350,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.UseRateLimiter();
-
 
 if (app.Environment.IsProduction())
 {

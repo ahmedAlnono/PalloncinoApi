@@ -3,11 +3,11 @@ using Palloncino.Models.Entities;
 using Palloncino.Models.Enums;
 using Palloncino.Models.DTOs;
 
-namespace Palloncino.Mappers;
+namespace Palloncino.Mappings;
 
-public class AutoMapperProfile : Profile
+public class MappingProfile : Profile
 {
-    public AutoMapperProfile()
+    public MappingProfile()
     {
         // ========== User & Auth Mappings ==========
         CreateMap<User, UserDto>()

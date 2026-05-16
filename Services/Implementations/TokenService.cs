@@ -8,22 +8,18 @@ using Palloncino.Models.Entities;
 
 namespace Palloncino.Services.Implementations;
 
-public class TokenService : ITokenService
+public class TokenService(
+    IConfiguration configuration
+    ) : ITokenService
 {
-    private readonly IConfiguration _configuration;
-    
-    public TokenService(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
 
     // ========== Generate Access Token ==========
     public string GenerateAccessToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] 
+        var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"] 
             ?? throw new InvalidOperationException("JWT Key not found"));
-        
+
         var claims = new List<Claim>
         {
             new("sub", user.Id.ToString()),
@@ -45,9 +41,9 @@ public class TokenService : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiryInMinutes"] ?? "60")),
-            Issuer = _configuration["Jwt:Issuer"],
-            Audience = _configuration["Jwt:Audience"],
+            Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(configuration["Jwt:ExpiryInMinutes"] ?? "60")),
+            Issuer = configuration["Jwt:Issuer"],
+            Audience = configuration["Jwt:Audience"],
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature
@@ -74,7 +70,7 @@ public class TokenService : ITokenService
         {
             AccessToken = GenerateAccessToken(user),
             RefreshToken = GenerateRefreshToken(),
-            ExpiresIn = Convert.ToInt32(_configuration["Jwt:ExpiryInMinutes"] ?? "60"),
+            ExpiresIn = Convert.ToInt32(configuration["Jwt:ExpiryInMinutes"] ?? "60"),
             TokenType = "Bearer",
             UserId = user.Id,
             UserName = user.FullName,
@@ -87,7 +83,7 @@ public class TokenService : ITokenService
     public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] 
+        var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"] 
             ?? throw new InvalidOperationException("JWT Key not found"));
         
         try
@@ -97,9 +93,9 @@ public class TokenService : ITokenService
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidIssuer = configuration["Jwt:Issuer"],
                 ValidateAudience = true,
-                ValidAudience = _configuration["Jwt:Audience"],
+                ValidAudience = configuration["Jwt:Audience"],
                 ValidateLifetime = false, // Don't validate lifetime for expired token
                 ClockSkew = TimeSpan.Zero
             }, out _);
@@ -117,7 +113,7 @@ public class TokenService : ITokenService
     {
         principal = null;
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] 
+        var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"] 
             ?? throw new InvalidOperationException("JWT Key not found"));
         
         try
@@ -127,9 +123,9 @@ public class TokenService : ITokenService
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidIssuer = configuration["Jwt:Issuer"],
                 ValidateAudience = true,
-                ValidAudience = _configuration["Jwt:Audience"],
+                ValidAudience = configuration["Jwt:Audience"],
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             }, out _);
