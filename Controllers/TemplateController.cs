@@ -8,11 +8,24 @@ using Palloncino.Services.Interfaces;
 namespace Palloncino.Controllers;
 
 [ApiController]
-[Route("api/templates")]
+[Route("api/admin/templates")]
 public class TemplateController(
     ITemplateService templateService,
     IMapper mapper) : ControllerBase
 {
+
+    [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetTemplateById(int id)
+    {
+        var template = await templateService.GetTemplateByIdAsync(id);
+        if (template == null)
+            return NotFound(new { message = "Template not found" });
+
+        var templateDto = mapper.Map<TemplateDto>(template);
+
+        return Ok(templateDto);
+    }
 
     [HttpGet]
     [AllowAnonymous]
@@ -42,17 +55,6 @@ public class TemplateController(
         var templateDtos = mapper.Map<IEnumerable<TemplateDto>>(templates);
 
         return Ok(templateDtos);
-    }
-
-    private async Task<IActionResult> GetTemplateById(int id)
-    {
-        var template = await templateService.GetTemplateByIdAsync(id);
-        if (template == null)
-            return NotFound(new { message = "Template not found" });
-
-        var templateDto = mapper.Map<TemplateDto>(template);
-
-        return Ok(templateDto);
     }
 
     [Authorize(Roles = "Admin")]
@@ -227,4 +229,3 @@ public class TemplateController(
         return int.Parse(User.FindFirst(u => u.Type == "userId")?.Value ?? "0");
     }
 }
-

@@ -1,4 +1,5 @@
 using Palloncino.Models.Enums;
+using TaskStatus = Palloncino.Models.Enums.TaskStatus;
 namespace Palloncino.Models.DTOs;
 
 public class TaskFilter
@@ -126,4 +127,134 @@ public class AddDesignFeedbackRequest
 {
     public string Feedback { get; set; } = string.Empty;
     public string? ImageUrl { get; set; }
+}
+
+
+public class CreateManualTaskRequest
+{
+    public TaskType Type { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int? AssignedTo { get; set; }
+    public DateTime? DueAt { get; set; }
+    public List<CreateSubTaskRequest>? SubTasks { get; set; }
+}
+
+public class CreateSubTaskRequest
+{
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int? Order { get; set; }
+}
+
+public class UpdateTaskRequest
+{
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public DateTime? DueAt { get; set; }
+}
+
+public class AssignTaskRequest
+{
+    public int AssignedTo { get; set; }
+}
+
+public class SkipTaskRequest
+{
+    public string Reason { get; set; } = string.Empty;
+}
+
+public class AddSubTaskRequest
+{
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int? Order { get; set; }
+}
+
+public class UpdateSubTaskStatusRequest
+{
+    public bool IsCompleted { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+}
+
+public class AddInventoryToTaskRequest
+{
+    public int InventoryItemId { get; set; }
+    public int Quantity { get; set; } = 1;
+    public decimal? SellingPricePerUnit { get; set; }
+    public bool AddToChecklist { get; set; } = true;
+}
+
+public class UpdateChecklistRequest
+{
+    public int ChecklistItemId { get; set; }
+    public bool IsChecked { get; set; }
+    public string? ProofImageUrl { get; set; }
+}
+
+public class CompletePhaseRequest
+{
+    public ChecklistPhase Phase { get; set; }
+}
+
+public class TaskResponseDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public TaskType Type { get; set; }
+    public TaskStatus Status { get; set; }
+    public DateTime DueAt { get; set; }
+    public int JobOrderId { get; set; }
+    public string? JobNumber { get; set; }
+    public int? AssignedTo { get; set; }
+    public string? AssignedToName { get; set; }
+    public int? CompletedBy { get; set; }
+    public string? CompletedByName { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public bool IsOverdue { get; set; }
+    public int SubTasksCount { get; set; }
+    public int CompletedSubTasksCount { get; set; }
+}
+
+public class TaskDetailResponseDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public TaskType Type { get; set; }
+    public TaskStatus Status { get; set; }
+    public DateTime DueAt { get; set; }
+    public int? AssignedTo { get; set; }
+    public string? AssignedToName { get; set; }
+    public string? SkipReason { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public int? CompletedBy { get; set; }
+    public string? CompletedByName { get; set; }
+    public List<SubTaskResponseDto>? SubTasks { get; set; }
+    public List<ChecklistItemResponseDto>? ChecklistItems { get; set; }
+}
+
+public class SubTaskResponseDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public bool IsCompleted { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public int? CompletedBy { get; set; }
+    public string? CompletedByName { get; set; }
+    public int? Order { get; set; }
+}
+
+public class ChecklistItemResponseDto
+{
+    public int Id { get; set; }
+    public string ItemName { get; set; } = string.Empty;
+    public ChecklistPhase Phase { get; set; }
+    public bool IsChecked { get; set; }
+    public DateTime? CheckedAt { get; set; }
+    public string? CheckedByName { get; set; }
+    public string? ProofImageUrl { get; set; }
 }
