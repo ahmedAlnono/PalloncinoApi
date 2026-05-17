@@ -45,8 +45,8 @@ public class BranchController(
         }
     }
 
-    [HttpGet]
     [Authorize(Roles = "Admin")]
+    [HttpGet]
     public async Task<ActionResult> GetAllBranches()
     {
         try
@@ -60,6 +60,7 @@ public class BranchController(
         }
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateBranch(int id, UpdateBranchDto dto)
     {
@@ -77,6 +78,7 @@ public class BranchController(
         }
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteBranch(int id)
     {
