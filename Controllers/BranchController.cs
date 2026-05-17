@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Entities;
-using Palloncino.Services.Implementations;
+using Palloncino.Services.Interfaces;
 
 
 namespace Palloncino.Controllers;
@@ -12,7 +12,7 @@ namespace Palloncino.Controllers;
 [Route("api/[controller]")]
 public class BranchController(
     IMapper mapper,
-    BranchService branchService
+    IBranchService branchService
 ) : ControllerBase
 {
     [Authorize(Roles = "Admin")]
