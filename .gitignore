@@ -30,8 +30,8 @@ packages/
 *.ipdb
 *.vcxproj
 *.vcxproj.filters
-*.sqlite-shm
-*.sqlite-wal
+PalloncinoDB.sqlite-shm
+PalloncinoDB.sqlite-wal
 ## Test results
 TestResults/
 *.coverage
