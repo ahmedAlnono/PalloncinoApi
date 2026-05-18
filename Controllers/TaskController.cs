@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -1068,8 +1069,7 @@ public class TaskController(
 
     private UserRole GetCurrentUserRole()
     {
-        var roleString = User.FindFirst("role")?.Value;
-        logger.LogWarning("role string is{}",roleString);
+        var roleString = User.FindFirst(u=>u.Type == ClaimTypes.Role)?.Value;
         return Enum.TryParse<UserRole>(roleString, out var role) ? role : UserRole.Customer;
     }
 
