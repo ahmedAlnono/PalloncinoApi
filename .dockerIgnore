@@ -1,0 +1,108 @@
+# Build outputs
+bin/
+obj/
+out/
+publish/
+*.user
+*.suo
+*.cache
+*.pidb
+*.log
+*.tmp
+*.temp
+
+# IDE folders
+.vs/
+.vscode/
+.idea/
+.azuredevops/
+.codesandbox/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+README.md
+docs/
+*.md
+!README.md
+
+# Test results
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# User secrets
+secrets.json
+appsettings.Development.json
+appsettings.Production.json
+*.local.json
+*.Development.json
+!appsettings.json
+
+# Logs
+logs/
+*.log
+Logs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.sdb
+*.s3db
+
+# Uploads (keep structure but not files)
+uploads/
+wwwroot/uploads/
+!uploads/.gitkeep
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Certificate files
+*.pfx
+*.p12
+*.cert
+*.key
+*.crt
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Temp files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Misc
+*.nupkg
+*.snupkg
+*.pid
+*.seed
