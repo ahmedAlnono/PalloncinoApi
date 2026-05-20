@@ -2,7 +2,9 @@ using Palloncino.Data;
 
 namespace Palloncino.Middleware;
 
-public class PostRequestTransactionMiddleware(RequestDelegate next, ILogger<PostRequestTransactionMiddleware> logger)
+public class PostRequestTransactionMiddleware(
+    RequestDelegate next,
+    ILogger<PostRequestTransactionMiddleware> logger)
 {
 
     public async Task InvokeAsync(HttpContext context, ApplicationDbContext dbContext)

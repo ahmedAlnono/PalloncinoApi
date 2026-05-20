@@ -15,7 +15,9 @@ public class StoredResponse
 }
 
 // Database implementation
-public class DatabaseIdempotencyService(ApplicationDbContext context, ILogger<DatabaseIdempotencyService> logger) : IIdempotencyService
+public class DatabaseIdempotencyService(
+    ApplicationDbContext context,
+    ILogger<DatabaseIdempotencyService> logger) : IIdempotencyService
 {
 
     public async Task<StoredResponse?> GetExistingResponseAsync(string key, string requestType)

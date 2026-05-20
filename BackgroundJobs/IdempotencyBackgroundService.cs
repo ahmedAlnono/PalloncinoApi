@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Palloncino.Data;
 
 namespace Palloncino.BackgroundJobs;
-public class IdempotencyCleanupService(IServiceProvider services, ILogger<IdempotencyCleanupService> logger) : BackgroundService
+public class IdempotencyCleanupService(
+    IServiceProvider services,
+    ILogger<IdempotencyCleanupService> logger) : BackgroundService
 {
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

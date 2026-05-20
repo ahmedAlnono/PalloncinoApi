@@ -1,17 +1,13 @@
 using Palloncino.Services.Interfaces;
 
 namespace Palloncino.Middleware;
-public class IdempotencyMiddleware
+public class IdempotencyMiddleware(
+    RequestDelegate next,
+    ILogger<IdempotencyMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<IdempotencyMiddleware> _logger;
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<IdempotencyMiddleware> _logger = logger;
     private static readonly HashSet<string> _idempotentMethods = new() { "POST", "PUT", "PATCH" };
-
-    public IdempotencyMiddleware(RequestDelegate next, ILogger<IdempotencyMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
 
     public async Task InvokeAsync(HttpContext context, IIdempotencyService idempotencyService)
     {
