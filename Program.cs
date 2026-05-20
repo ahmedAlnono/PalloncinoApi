@@ -14,6 +14,8 @@ using Serilog;
 using Scalar.AspNetCore;
 using Stripe;
 using Microsoft.Extensions.DependencyInjection;
+using Palloncino.Middleware;
+using Palloncino.BackgroundJobs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -176,6 +178,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IQuotationService, QuotationService>();
 builder.Services.AddScoped<IPaymentService, StripePaymentService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IIdempotencyService, DatabaseIdempotencyService>();
+builder.Services.AddHostedService<IdempotencyCleanupService>();
 
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
 var stripeSecretKey = builder.Configuration[$"{StripeOptions.SectionName}:SecretKey"];
@@ -335,7 +339,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseCors("AllowAll");
 }
-
+app.UseMiddleware<PostRequestTransactionMiddleware>();
+app.UseMiddleware<IdempotencyMiddleware>();
 app.MapScalarApiReference(options =>
 {
     options.WithTitle("Palloncino API");

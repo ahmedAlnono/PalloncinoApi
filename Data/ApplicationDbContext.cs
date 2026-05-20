@@ -50,6 +50,7 @@ namespace Palloncino.Data
         public DbSet<UserDeviceToken> UserDeviceTokens { get; set; }
 
         public DbSet<DesignStatusHistory> DesignStatusHistories { get; set; }
+        public DbSet<IdempotencyRecord> IdempotencyRecords {get;set;}
 
         // ========== OnModelCreating - Fluent API Configurations ==========
 
