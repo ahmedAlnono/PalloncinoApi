@@ -5,8 +5,6 @@ public class IdempotencyMiddleware(
     RequestDelegate next,
     ILogger<IdempotencyMiddleware> logger)
 {
-    private readonly RequestDelegate _next = next;
-    private readonly ILogger<IdempotencyMiddleware> _logger = logger;
     private static readonly HashSet<string> _idempotentMethods = new() { "POST", "PUT", "PATCH" };
 
     public async Task InvokeAsync(HttpContext context, IIdempotencyService idempotencyService)
@@ -14,14 +12,14 @@ public class IdempotencyMiddleware(
         // Step 1: Only process idempotent methods
         if (!_idempotentMethods.Contains(context.Request.Method))
         {
-            await _next(context);
+            await next(context);
             return;
         }
 
         // Step 2: Validate Idempotency-Key header
         if (!context.Request.Headers.TryGetValue("Idempotency-Key", out var keyHeader))
         {
-            _logger.LogWarning("Missing Idempotency-Key header for {Method} {Path}", 
+            logger.LogWarning("Missing Idempotency-Key header for {Method} {Path}", 
                 context.Request.Method, context.Request.Path);
             
             context.Response.StatusCode = 400;
@@ -42,7 +40,7 @@ public class IdempotencyMiddleware(
         if (existingResponse != null)
         {
             // Step 4: Return the SAME response as before
-            _logger.LogInformation("Idempotent request detected! Returning cached response for key {Key}", 
+            logger.LogInformation("Idempotent request detected! Returning cached response for key {Key}", 
                 idempotencyKey);
             
             context.Response.StatusCode = existingResponse.StatusCode;
@@ -63,7 +61,7 @@ public class IdempotencyMiddleware(
         try
         {
             // Execute the actual controller
-            await _next(context);
+            await next(context);
             
             // Read what the controller wrote
             responseBody.Seek(0, SeekOrigin.Begin);
@@ -78,7 +76,7 @@ public class IdempotencyMiddleware(
                     context.Response.StatusCode, 
                     responseContent);
                 
-                _logger.LogInformation("Saved idempotent response for key {Key}", idempotencyKey);
+                logger.LogInformation("Saved idempotent response for key {Key}", idempotencyKey);
             }
             
             // Copy response back to original stream
@@ -88,7 +86,7 @@ public class IdempotencyMiddleware(
         catch (Exception ex)
         {
             // Don't store failed responses
-            _logger.LogError(ex, "Error processing request for key {Key}", idempotencyKey);
+            logger.LogError(ex, "Error processing request for key {Key}", idempotencyKey);
             throw;
         }
         finally

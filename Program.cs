@@ -1,6 +1,5 @@
 using System.Text;
 using System.Threading.RateLimiting;
-using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +12,6 @@ using Palloncino.Models.Configuration;
 using Serilog;
 using Scalar.AspNetCore;
 using Stripe;
-using Microsoft.Extensions.DependencyInjection;
 using Palloncino.Middleware;
 using Palloncino.BackgroundJobs;
 
