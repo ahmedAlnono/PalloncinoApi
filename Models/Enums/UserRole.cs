@@ -10,70 +10,70 @@ public enum UserRole
 }
 
 
-public enum Permission
-{
-    // Order Permissions
-    ViewOrders,
-    CreateOrder,
-    UpdateOrder,
-    DeleteOrder,
-    ApproveOrder,
-    RejectOrder,
+// public enum Permission
+// {
+//     // Order Permissions
+//     ViewOrders,
+//     CreateOrder,
+//     UpdateOrder,
+//     DeleteOrder,
+//     ApproveOrder,
+//     RejectOrder,
 
-    // Job Order Permissions
-    ViewJobOrders,
-    CreateJobOrder,
-    UpdateJobOrder,
-    DeleteJobOrder,
-    AssignJobOrder,
-    UpdateJobOrderStatus,
-    SkipReturnPhase,
+//     // Job Order Permissions
+//     ViewJobOrders,
+//     CreateJobOrder,
+//     UpdateJobOrder,
+//     DeleteJobOrder,
+//     AssignJobOrder,
+//     UpdateJobOrderStatus,
+//     SkipReturnPhase,
 
-    // Task Permissions
-    ViewTasks,
-    CreateTask,
-    UpdateTask,
-    DeleteTask,
-    AssignTask,
-    CompleteTask,
-    CompleteTaskForOthers, // BR-12
+//     // Task Permissions
+//     ViewTasks,
+//     CreateTask,
+//     UpdateTask,
+//     DeleteTask,
+//     AssignTask,
+//     CompleteTask,
+//     CompleteTaskForOthers, // BR-12
 
-    // Task Management Permissions
-    AssignTaskToOthers,
-    CompleteAnyTask,
-    SkipTask,
+//     // Task Management Permissions
+//     AssignTaskToOthers,
+//     CompleteAnyTask,
+//     SkipTask,
 
-    // Catalog Permissions
-    ViewCatalog,
-    CreateCatalogItem,
-    UpdateCatalogItem,
-    DeleteCatalogItem,
+//     // Catalog Permissions
+//     ViewCatalog,
+//     CreateCatalogItem,
+//     UpdateCatalogItem,
+//     DeleteCatalogItem,
 
-    // Inventory Permissions
-    ViewInventory,
-    CreateInventoryItem,
-    UpdateInventoryItem,
-    DeleteInventoryItem,
-    AdjustInventory,
-    TransferInventory,
+//     // Inventory Permissions
+//     ViewInventory,
+//     CreateInventoryItem,
+//     UpdateInventoryItem,
+//     DeleteInventoryItem,
+//     AdjustInventory,
+//     TransferInventory,
 
-    // User Management Permissions
-    ViewUsers,
-    CreateUser,
-    UpdateUser,
-    DeleteUser,
-    AssignRole,
+//     // User Management Permissions
+//     ViewUsers,
+//     CreateUser,
+//     UpdateUser,
+//     DeleteUser,
+//     AssignRole,
 
-    // Report Permissions
-    ViewReports,
-    ViewProfitReports,
-    ViewPerformanceReports,
-    ViewInventoryReports,
-    ExportReports,
+//     // Report Permissions
+//     ViewReports,
+//     ViewProfitReports,
+//     ViewPerformanceReports,
+//     ViewInventoryReports,
+//     ExportReports,
 
-    // System Permissions
-    ViewActivityLogs,
-    ManageSettings,
-    SendBroadcastNotifications,
-    ManageBranches
-}
+//     // System Permissions
+//     ViewActivityLogs,
+//     ManageSettings,
+//     SendBroadcastNotifications,
+//     ManageBranches
+// }
