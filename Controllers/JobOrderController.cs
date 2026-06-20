@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Palloncino.Core.Constants;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Entities;
 using Palloncino.Models.Enums;
@@ -19,7 +20,7 @@ public class JobOrderController(
 ) : ControllerBase
 {
     [HttpPost]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.JobOrdersCreate)]
     public async Task<ActionResult<JobOrderDto>> CreateJobOrder([FromBody] CreateJobOrderDto dto)
     {
         try
@@ -89,7 +90,7 @@ public class JobOrderController(
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.JobOrdersView)]
     public async Task<ActionResult<IEnumerable<JobOrderListDto>>> GetJobOrders([FromQuery] JobOrderFilter filter)
     {
         try
@@ -109,7 +110,7 @@ public class JobOrderController(
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.JobOrdersView)]
     public async Task<ActionResult<JobOrderDto>> GetJobOrder(int id)
     {
         try
@@ -128,7 +129,7 @@ public class JobOrderController(
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.JobOrdersUpdate)]
     public async Task<ActionResult<JobOrderDto>> UpdateJobOrder(int id, [FromBody] UpdateJobOrderDto dto)
     {
         try
@@ -161,7 +162,7 @@ public class JobOrderController(
     }
 
     [HttpGet("{id}/countdown")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Permissions.JobOrdersView)]
     public async Task<ActionResult> GetJobOrderCountdown(int id)
     {
         try
@@ -188,7 +189,7 @@ public class JobOrderController(
     }
 
     [HttpPut("{id}/status")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.JobOrdersUpdate)]
     public async Task<ActionResult<JobOrderDto>> UpdateJobOrderStatus(int id, [FromBody] UpdateJobOrderStatusDto dto)
     {
         try

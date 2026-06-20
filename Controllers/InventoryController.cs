@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Palloncino.Core.Constants;
 using Palloncino.Models.DTOs;
 using Palloncino.Services.Interfaces;
 
@@ -16,7 +17,7 @@ public class InventoryController(
 ) : ControllerBase
 {
     [HttpGet("items")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryView)]
     public async Task<ActionResult<IEnumerable<InventoryItemDto>>> GetInventoryItems(
         [FromQuery] InventoryFilter filter,
         [FromQuery] int page = 1,
@@ -42,7 +43,7 @@ public class InventoryController(
     }
 
     [HttpGet("item/{id}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryView)]
     public async Task<ActionResult<InventoryItemDto>> GetInventoryItem(int id)
     {
         try
@@ -61,7 +62,7 @@ public class InventoryController(
     }
 
     [HttpGet("item/sku/{sku}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryView)]
     public async Task<ActionResult<InventoryItemDto>> GetInventoryItemBySku(string sku)
     {
         try
@@ -80,7 +81,7 @@ public class InventoryController(
     }
 
     [HttpPost("item")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.InventoryCreate)]
     public async Task<ActionResult<InventoryItemDto>> CreateInventoryItem(CreateInventoryItemDto dto)
     {
         try
@@ -96,7 +97,7 @@ public class InventoryController(
     }
 
     [HttpPut("item/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.InventoryUpdate)]
     public async Task<ActionResult> UpdateInventoryItem(int id, [FromBody] UpdateInventoryItemDto dto)
     {
         try
@@ -115,7 +116,7 @@ public class InventoryController(
     }
 
     [HttpDelete("item/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.InventoryDelete)]
     public async Task<ActionResult> DeleteInventoryItem(int id)
     {
         try
@@ -135,7 +136,7 @@ public class InventoryController(
     }
 
     [HttpPost("item/{id}/stock/add")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryUpdate)]
     public async Task<ActionResult<InventoryItemDto>> AddStock(int id, [FromBody] UpdateInventoryStockDto dto)
     {
         try
@@ -152,7 +153,7 @@ public class InventoryController(
     }
 
     [HttpPost("item/{id}/stock/remove")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryDelete)]
     public async Task<ActionResult<InventoryItemDto>> RemoveStock(int id, [FromBody] UpdateInventoryStockDto dto)
     {
         try
@@ -169,7 +170,7 @@ public class InventoryController(
     }
 
     [HttpPost("transfer")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.InventoryUpdate)]
     public async Task<ActionResult<InventoryItemDto>> TransferStock([FromBody] TransferStockRequestDto dto)
     {
         try
@@ -186,7 +187,7 @@ public class InventoryController(
     }
 
     [HttpGet("branch/{branchId}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryView)]
     public async Task<ActionResult<IEnumerable<InventoryItemDto>>> GetInventoryByBranch(int branchId)
     {
         try
@@ -202,7 +203,7 @@ public class InventoryController(
     }
 
     [HttpGet("low-stock")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryView)]
     public async Task<ActionResult<IEnumerable<InventoryItemDto>>> GetLowStockItems([FromQuery] int? branchId)
     {
         try
@@ -226,7 +227,7 @@ public class InventoryController(
     }
 
     [HttpGet("out-of-stock")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryView)]
     public async Task<ActionResult<IEnumerable<InventoryItemDto>>> GetOutOfStockItems([FromQuery] int? branchId)
     {
         try
@@ -249,7 +250,7 @@ public class InventoryController(
     }
 
     [HttpGet("item/{id}/movements")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.InventoryView)]
     public async Task<ActionResult<IEnumerable<InventoryMovementDto>>> GetInventoryMovements(
         int id, 
         [FromQuery] DateTime? fromDate, 
@@ -269,7 +270,7 @@ public class InventoryController(
     }
 
     [HttpGet("statistics")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Inventory)]
     public async Task<ActionResult<InventoryStatisticsDto>> GetInventoryStatistics([FromQuery] int? branchId)
     {
         try
@@ -285,7 +286,7 @@ public class InventoryController(
     }
 
     [HttpGet("report")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Inventory)]
     public async Task<ActionResult<InventoryReportDto>> GetInventoryReport([FromQuery] int? branchId)
     {
         try

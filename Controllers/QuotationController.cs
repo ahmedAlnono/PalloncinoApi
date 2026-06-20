@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Palloncino.Core.Constants;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Enums;
 using Palloncino.Services.Interfaces;
@@ -20,7 +21,7 @@ public class QuotationController(
     /// POST /api/quotations - إنشاء عرض سعر مرتبط بطلب
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.QuotationsCreate)]
     public async Task<IActionResult> CreateQuotation([FromBody] CreateQuotationRequest request)
     {
         // Verify order exists
@@ -80,7 +81,7 @@ public class QuotationController(
     /// PUT /api/quotations/:id - تعديل البنود
     /// </summary>
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.QuotationsUpdate)]
     public async Task<IActionResult> UpdateQuotation(int id, [FromBody] UpdateQuotationRequest request)
     {
         try
@@ -134,7 +135,7 @@ public class QuotationController(
     /// GET /api/quotations/order/:orderId - عروض الأسعار لطلب محدد
     /// </summary>
     [HttpGet("order/{orderId}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy =Permissions.QuotationsView)]
     public async Task<IActionResult> GetQuotationsByOrder(int orderId)
     {
         var quotations = await quotationService.GetQuotationsByOrderAsync(orderId);
@@ -147,7 +148,7 @@ public class QuotationController(
     /// PUT /api/quotations/:id/approve - اعتماد عرض السعر
     /// </summary>
     [HttpPut("{id}/approve")]
-    [Authorize(Roles = "Customer,Admin")]
+    [Authorize(Policy = Permissions.QuotationsApprove)]
     public async Task<IActionResult> ApproveQuotation(int id)
     {
         try
@@ -172,7 +173,7 @@ public class QuotationController(
     /// PUT /api/quotations/:id/reject - رفض عرض السعر
     /// </summary>
     [HttpPut("{id}/reject")]
-    [Authorize(Roles = "Customer,Admin")]
+    [Authorize(Policy = Permissions.QuotationsReject)]
     public async Task<IActionResult> RejectQuotation(int id)
     {
         try
@@ -197,7 +198,7 @@ public class QuotationController(
     /// DELETE /api/quotations/:id - حذف عرض السعر
     /// </summary>
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.QuotationsDelete)]
     public async Task<IActionResult> DeleteQuotation(int id)
     {
         try

@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Palloncino.Core.Constants;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Entities;
 using Palloncino.Models.Enums;
@@ -24,7 +25,7 @@ public class OrderController(
     /// POST /api/orders - إنشاء طلب عادي من الكتالوج
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Policy = Permissions.OrdersCreate)]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto createDto)
     {
         var customerId = GetCurrentUserId();
@@ -56,7 +57,7 @@ public class OrderController(
     /// POST /api/orders/custom - إنشاء طلب خاص مع صور ووصف
     /// </summary>
     [HttpPost("custom")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Policy = Permissions.OrdersCreate)]
     public async Task<IActionResult> CreateCustomOrder([FromForm] CreateCustomOrderDto createDto)
     {
         var customerId = GetCurrentUserId();
@@ -113,7 +114,7 @@ public class OrderController(
     /// GET /api/orders/my - طلبات العميل الحالي
     /// </summary>
     [HttpGet("my")]
-    [Authorize]
+    [Authorize(Policy = Permissions.OrdersView)]
     public async Task<IActionResult> GetMyOrders()
     {
         var userId = GetCurrentUserId();
@@ -136,7 +137,7 @@ public class OrderController(
     /// GET /api/orders/:id - تفاصيل طلب
     /// </summary>
     [HttpGet("{id}")]
-    [Authorize]
+    [Authorize(Policy = Permissions.OrdersView)]
     public async Task<IActionResult> GetOrderById(int id)
     {
         var order = await orderService.GetOrderByIdAsync(id);
@@ -161,7 +162,7 @@ public class OrderController(
     /// GET /api/orders - قائمة الطلبات (Admin/Employee)
     /// </summary>
     [HttpGet]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Permissions.OrdersView)]
     public async Task<IActionResult> GetAllOrders([FromQuery] OrderStatus? status, [FromQuery] int? customerId)
     {
         var orders = await orderService.GetAllOrdersAsync(status, customerId);
@@ -179,7 +180,7 @@ public class OrderController(
     /// PUT /api/orders/:id/approve - قبول الطلب → يُنشئ Job Order تلقائياً
     /// </summary>
     [HttpPut("{id}/approve")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.OrdersApprove)]
     public async Task<IActionResult> ApproveOrder(int id)
     {
         var canApprove = await orderService.CanApproveOrderAsync(id);
@@ -208,7 +209,7 @@ public class OrderController(
     /// PUT /api/orders/:id/reject - رفض الطلب مع سبب → يُشعر العميل
     /// </summary>
     [HttpPut("{id}/reject")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.OrdersReject)]
     public async Task<IActionResult> RejectOrder(int id, [FromBody] RejectOrderRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Reason))
@@ -240,7 +241,7 @@ public class OrderController(
     /// PUT /api/orders/:id/status - تحديث حالة الطلب
     /// </summary>
     [HttpPut("{id}/status")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.OrdersUpdate)]
     public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusRequest request)
     {
         try
@@ -270,7 +271,7 @@ public class OrderController(
     /// GET /api/orders/statistics - إحصائيات الطلبات (Admin)
     /// </summary>
     [HttpGet("statistics")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Orders)]
     public async Task<IActionResult> GetOrderStatistics([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
     {
         var statistics = await orderService.GetOrderStatisticsAsync(fromDate, toDate);

@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Palloncino.Core.Constants;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Entities;
 using Palloncino.Services.Interfaces;
@@ -15,7 +16,7 @@ public class BranchController(
     IBranchService branchService
 ) : ControllerBase
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.BranchesCreate)]
     [HttpPost("branch")]
     public async Task<ActionResult> CreateBranch([FromBody] CreateBranchDto dto)
     {
@@ -30,7 +31,7 @@ public class BranchController(
             return BadRequest(ex.Message);
         }
     }
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.BranchesView)]
     [HttpGet("{id}")]
     public async Task<ActionResult> GetBranchById(int id)
     {
@@ -45,7 +46,7 @@ public class BranchController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.BranchesView)]
     [HttpGet]
     public async Task<ActionResult> GetAllBranches()
     {
@@ -60,7 +61,7 @@ public class BranchController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.BranchesUpdate)]
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateBranch(int id, UpdateBranchDto dto)
     {
@@ -78,7 +79,7 @@ public class BranchController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.BranchesDelete)]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteBranch(int id)
     {

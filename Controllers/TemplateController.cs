@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Palloncino.Core.Constants;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Entities;
 using Palloncino.Services.Interfaces;
@@ -57,7 +58,7 @@ public class TemplateController(
         return Ok(templateDtos);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpPost]
     public async Task<IActionResult> CreateTemplate([FromBody] CreateTemplateDto createDto)
     {
@@ -77,7 +78,7 @@ public class TemplateController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTemplate(int id, [FromBody] UpdateTemplateDto updateDto)
     {
@@ -106,7 +107,7 @@ public class TemplateController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTemplate(int id)
     {
@@ -125,7 +126,7 @@ public class TemplateController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpPost("{id}/activate")]
     public async Task<IActionResult> ActivateTemplate(int id)
     {
@@ -144,7 +145,7 @@ public class TemplateController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpPost("{id}/deactivate")]
     public async Task<IActionResult> DeactivateTemplate(int id)
     {
@@ -156,7 +157,7 @@ public class TemplateController(
         return Ok(new { message = "Template deactivated successfully" });
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpPost("{id}/duplicate")]
     public async Task<IActionResult> DuplicateTemplate(int id, [FromBody] DuplicateTemplateRequest request)
     {
@@ -173,7 +174,7 @@ public class TemplateController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpPost("{id}/items")]
     public async Task<IActionResult> AddTemplateItem(int id, [FromBody] AddTemplateItemRequest request)
     {
@@ -189,7 +190,7 @@ public class TemplateController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpDelete("items/{itemId}")]
     public async Task<IActionResult> RemoveTemplateItem(int itemId)
     {
@@ -201,7 +202,7 @@ public class TemplateController(
         return Ok(new { message = "Item removed successfully" });
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpGet("{id}/statistics")]
     public async Task<IActionResult> GetTemplateStatistics(int id)
     {
@@ -216,7 +217,7 @@ public class TemplateController(
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Template)]
     [HttpGet("most-used")]
     public async Task<IActionResult> GetMostUsedTemplates([FromQuery] int topCount = 10)
     {

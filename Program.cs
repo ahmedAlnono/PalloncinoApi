@@ -14,6 +14,7 @@ using Scalar.AspNetCore;
 using Stripe;
 using Palloncino.Middleware;
 using Palloncino.BackgroundJobs;
+using Palloncino.Core.Constants;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -131,33 +132,14 @@ builder.Services.AddAuthentication(options =>
 });
 
 // ========== 5. Configure Authorization Policies ==========
-builder.Services.AddAuthorizationBuilder()
-
-    .AddPolicy("AdminOnly", policy =>
-        policy.RequireRole("Admin"))
-
-    .AddPolicy("EmployeeOnly", policy =>
-        policy.RequireRole("Admin", "Employee"))
-
-    .AddPolicy("DriverOnly", policy =>
-        policy.RequireRole("Admin", "Driver"))
-
-    .AddPolicy("DesignerOnly", policy =>
-        policy.RequireRole("Admin", "Designer"))
-
-    .AddPolicy("InternalStaff", policy =>
-        policy.RequireRole("Admin", "Employee", "Designer", "Driver"))
-
-    .AddPolicy("CustomerOnly", policy =>
-        policy.RequireRole("Customer"))
-
-    .AddPolicy("SameBranch", policy =>
-        policy.RequireAssertion(context =>
-        {
-            var userBranchId = context.User.FindFirst("branchId")?.Value;
-            var resourceBranchId = context.Resource?.ToString();
-            return userBranchId == resourceBranchId || context.User.IsInRole("Admin");
-        }));
+builder.Services.AddAuthorization(options =>
+{
+   foreach(var permission in Permissions.GetAllPermissions())
+    {
+        options.AddPolicy(permission,policy=>
+        policy.RequireClaim("permission",permission));
+    } 
+});
 
 
 // ========== 6. Register Custom Services ==========

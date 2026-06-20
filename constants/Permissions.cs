@@ -28,7 +28,13 @@ public static class Permissions
     public const string TasksUpdate = "tasks.update";
     public const string TasksDelete = "tasks.delete";
     public const string TasksComplete = "tasks.complete";
-    public const string TasksCompleteForOthers = "tasks.completeforothers"; // BR-12
+    public const string TasksCompleteForOthers = "tasks.complete_for_others"; // BR-12
+    public const string TasksUpdateChecklist = "tasks.update_checklist";
+    public const string TasksViewDesign = "tasks.view_design";
+    public const string TasksUpdateDesign = "tasks.update_design";
+    public const string TasksViewPendingDesign = "tasks.view_pending_design";
+    public const string TasksDesignFeedBack = "tasks.design_feedback";
+
 
     // ========== Inventory Module ==========
     public const string Inventory = "inventory";
@@ -53,6 +59,7 @@ public static class Permissions
     public const string QuotationsUpdate = "quotations.update";
     public const string QuotationsDelete = "quotations.delete";
     public const string QuotationsApprove = "quotations.approve";
+    public const string QuotationsReject = "quotations.reject";
 
     // ========== User Management ==========
     public const string Users = "users";
@@ -95,6 +102,8 @@ public static class Permissions
     public const string DeliveriesView = "deliveries.view";
     public const string DeliveriesComplete = "deliveries.complete";
     public const string DeliveriesChecklist = "deliveries.checklist";
+
+    public const string Template = "template";
 
     // ========== Helper Methods ==========
     public static List<string> GetAllPermissions()

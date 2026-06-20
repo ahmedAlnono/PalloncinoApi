@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Palloncino.Core.Constants;
 using Palloncino.Models.Entities;
 
 namespace Palloncino.Services.Implementations;
@@ -31,6 +32,12 @@ public class TokenService(
             new("branchId", user.BranchId?.ToString() ?? ""),
         };
         
+        var permissions = RolePermissions.GetPermissionsForRole(user.Role);
+        foreach(var permission in permissions)
+        {
+            claims.Add(new Claim("permission", permission));
+        }
+
         // Add branch-based claims for multi-branch support (Section 2.3 of SRS)
         if (user.BranchId.HasValue && user.BranchId.Value != 0)
         {

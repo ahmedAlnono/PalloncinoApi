@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Palloncino.Core.Constants;
 using Palloncino.Data;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Entities;
@@ -31,6 +32,7 @@ public class TaskController(
     /// GET /api/tasks - مهام المستخدم الحالي
     /// </summary>
     [HttpGet("tasks")]
+    [Authorize(Policy = Permissions.TasksView)]
     public async Task<IActionResult> GetMyTasks([FromQuery] TaskStatus? status)
     {
         var userId = GetCurrentUserId();
@@ -76,6 +78,7 @@ public class TaskController(
     /// GET /api/job-orders/:id/tasks - كل مهام JO معين
     /// </summary>
     [HttpGet("job-orders/{jobOrderId}/tasks")]
+    [Authorize(Policy = Permissions.TasksView)]
     public async Task<IActionResult> GetTasksByJobOrder(int jobOrderId)
     {
         // Check authorization
@@ -131,7 +134,7 @@ public class TaskController(
     /// POST /api/job-orders/:id/tasks - إضافة مهمة يدوية
     /// </summary>
     [HttpPost("job-orders/{jobOrderId}/tasks")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.TasksCreate)]
     public async Task<IActionResult> AddManualTask(int jobOrderId, [FromBody] CreateManualTaskRequest request)
     {
         var jobOrder = await jobOrderService.GetJobOrderByIdAsync(jobOrderId);
@@ -179,7 +182,7 @@ public class TaskController(
     /// PUT /api/tasks/:id - تعديل مهمة
     /// </summary>
     [HttpPut("tasks/{taskId}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.TasksComplete)]
     public async Task<IActionResult> UpdateTask(int taskId, [FromBody] UpdateTaskRequest request)
     {
         var existingTask = await taskService.GetTaskByIdAsync(taskId);
@@ -216,7 +219,7 @@ public class TaskController(
     /// PUT /api/tasks/:id/assign - إعادة إسناد المهمة
     /// </summary>
     [HttpPut("tasks/{taskId}/assign")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.TasksUpdate)]
     public async Task<IActionResult> AssignTask(int taskId, [FromBody] AssignTaskRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -244,6 +247,7 @@ public class TaskController(
     /// PUT /api/tasks/:id/complete - إتمام المهمة (أي مستخدم مخول → يُسجل في Activity Log)
     /// </summary>
     [HttpPut("tasks/{taskId}/complete")]
+    [Authorize(Policy = Permissions.TasksComplete)]
     public async Task<IActionResult> CompleteTask(int taskId)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -292,6 +296,7 @@ public class TaskController(
     /// PUT /api/tasks/:id/start - بدء المهمة
     /// </summary>
     [HttpPut("tasks/{taskId}/start")]
+    [Authorize(Policy = Permissions.TasksUpdate)]
     public async Task<IActionResult> StartTask(int taskId)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -324,7 +329,7 @@ public class TaskController(
     /// PUT /api/tasks/:id/skip - تخطي المهمة (مع سبب)
     /// </summary>
     [HttpPut("tasks/{taskId}/skip")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.TasksUpdate)]
     public async Task<IActionResult> SkipTask(int taskId, [FromBody] SkipTaskRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Reason))
@@ -361,7 +366,7 @@ public class TaskController(
     /// POST /api/tasks/:id/subtasks - إضافة Sub-Task
     /// </summary>
     [HttpPost("tasks/{taskId}/subtasks")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.TasksCreate)]
     public async Task<IActionResult> AddSubTask(int taskId, [FromBody] AddSubTaskRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -389,6 +394,7 @@ public class TaskController(
     /// PUT /api/tasks/:id/subtasks/:sid - تحديث حالة Sub-Task (done/undone)
     /// </summary>
     [HttpPut("tasks/{taskId}/subtasks/{subTaskId}")]
+    [Authorize(Policy = Permissions.TasksUpdate)]
     public async Task<IActionResult> UpdateSubTaskStatus(int taskId, int subTaskId, [FromBody] UpdateSubTaskStatusRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -431,7 +437,7 @@ public class TaskController(
     /// DELETE /api/tasks/:id/subtasks/:sid - حذف Sub-Task
     /// </summary>
     [HttpDelete("tasks/{taskId}/subtasks/{subTaskId}")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.TasksDelete)]
     public async Task<IActionResult> DeleteSubTask(int taskId, int subTaskId)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -459,7 +465,7 @@ public class TaskController(
     /// POST /api/tasks/:id/inventory - إضافة عنصر من المخزن أثناء التنفيذ
     /// </summary>
     [HttpPost("tasks/{taskId}/inventory")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.Tasks)]
     public async Task<IActionResult> AddInventoryItemToTask(int taskId, [FromBody] AddInventoryToTaskRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -524,7 +530,7 @@ public class TaskController(
     /// PUT /api/tasks/:id/checklist - تحديث حالة Checklist
     /// </summary>
     [HttpPut("tasks/{taskId}/checklist")]
-    [Authorize(Roles = "Admin,Employee,Driver")]
+    [Authorize(Policy =Permissions.TasksUpdateChecklist)]
     public async Task<IActionResult> UpdateChecklistItem(int taskId, [FromBody] UpdateChecklistRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -556,7 +562,7 @@ public class TaskController(
     /// PUT /api/tasks/:id/checklist/phase - إكمال مرحلة كاملة من الـ Checklist
     /// </summary>
     [HttpPut("tasks/{taskId}/checklist/phase")]
-    [Authorize(Roles = "Admin,Employee,Driver")]
+    [Authorize(Policy = Permissions.TasksUpdateChecklist)]
     public async Task<IActionResult> CompleteChecklistPhase(int taskId, [FromBody] CompletePhaseRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -586,7 +592,7 @@ public class TaskController(
     /// GET /api/tasks/dashboard - لوحة تحكم المهام
     /// </summary>
     [HttpGet("tasks/dashboard")]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Policy = Permissions.TasksView)]
     public async Task<IActionResult> GetTaskDashboard([FromQuery] int? branchId)
     {
         var userId = GetCurrentUserId();
@@ -603,6 +609,7 @@ public class TaskController(
     /// GET /api/tasks/overdue - المهام المتأخرة
     /// </summary>
     [HttpGet("tasks/overdue")]
+    [Authorize(Policy = Permissions.TasksView)]
     public async Task<IActionResult> GetOverdueTasks()
     {
         var userId = GetCurrentUserId();
@@ -641,7 +648,7 @@ public class TaskController(
     /// GET /api/tasks/:id/design - تفاصيل مهمة التصميم + مراجع العميل
     /// </summary>
     [HttpGet("tasks/{taskId}/design")]
-    [Authorize(Roles = "Admin,Designer,Employee")]
+    [Authorize(Policy = Permissions.TasksViewDesign)]
     public async Task<IActionResult> GetDesignTaskDetails(int taskId)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -724,7 +731,7 @@ public class TaskController(
     /// POST /api/tasks/:id/design/uploads - رفع مقترح تصميم
     /// </summary>
     [HttpPost("tasks/{taskId}/design/uploads")]
-    [Authorize(Roles = "Admin,Designer")]
+    [Authorize(Policy = Permissions.TasksUpdateDesign)]
     public async Task<IActionResult> UploadDesignProposal(int taskId, [FromForm] UploadDesignProposalRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -803,7 +810,7 @@ public class TaskController(
     /// PUT /api/tasks/:id/design/status - تحديث الحالة: in_progress | pending_review | completed
     /// </summary>
     [HttpPut("tasks/{taskId}/design/status")]
-    [Authorize(Roles = "Admin,Designer")]
+    [Authorize(Policy = Permissions.TasksUpdateDesign)]
     public async Task<IActionResult> UpdateDesignTaskStatus(int taskId, [FromBody] UpdateDesignStatusRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);
@@ -882,7 +889,7 @@ public class TaskController(
     /// GET /api/tasks/design/pending - المهام التصميمية المنتظرة للمراجعة (للمصممين)
     /// </summary>
     [HttpGet("tasks/design/pending")]
-    [Authorize(Roles = "Admin,Designer")]
+    [Authorize(Policy = Permissions.TasksViewPendingDesign)]
     public async Task<IActionResult> GetPendingDesignTasks()
     {
         var userId = GetCurrentUserId();
@@ -920,7 +927,7 @@ public class TaskController(
     /// GET /api/tasks/design/review - المهام التصميمية الجاهزة للمراجعة (للأدمن)
     /// </summary>
     [HttpGet("tasks/design/review")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.Tasks)]
     public async Task<IActionResult> GetDesignTasksReadyForReview()
     {
         var tasks = await taskService.GetTasksByTypeAsync(TaskType.Design, null);
@@ -954,7 +961,7 @@ public class TaskController(
     /// POST /api/tasks/:id/design/feedback - إضافة تعليق على التصميم (للعميل أو الأدمن)
     /// </summary>
     [HttpPost("tasks/{taskId}/design/feedback")]
-    [Authorize]
+    [Authorize(Policy = Permissions.TasksDesignFeedBack)]
     public async Task<IActionResult> AddDesignFeedback(int taskId, [FromBody] AddDesignFeedbackRequest request)
     {
         var task = await taskService.GetTaskByIdAsync(taskId);

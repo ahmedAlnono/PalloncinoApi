@@ -17,10 +17,12 @@ public static class RolePermissions
             Permissions.CatalogView,
             // Quotations
             Permissions.QuotationsView,
+            Permissions.QuotationsReject,
             // Designs
             Permissions.DesignsView,
             Permissions.DesignsCreate,
             Permissions.DesignsUpdate,
+            Permissions.TasksDesignFeedBack,
         },
 
         // ========== Employee ==========
@@ -43,6 +45,8 @@ public static class RolePermissions
             Permissions.TasksUpdate,
             Permissions.TasksComplete,
             Permissions.TasksCompleteForOthers, // BR-12
+            Permissions.TasksUpdateChecklist,
+            Permissions.TasksViewDesign,
             // Inventory
             Permissions.InventoryView,
             Permissions.InventoryCreate,
@@ -71,6 +75,9 @@ public static class RolePermissions
             Permissions.TasksCreate,
             Permissions.TasksUpdate,
             Permissions.TasksComplete,
+            Permissions.TasksViewDesign,
+            Permissions.TasksUpdateDesign,
+            Permissions.TasksViewPendingDesign,
             // Designs
             Permissions.DesignsView,
             Permissions.DesignsCreate,
@@ -95,6 +102,7 @@ public static class RolePermissions
             Permissions.DeliveriesChecklist,
             // Catalog
             Permissions.CatalogView,
+            Permissions.TasksUpdateChecklist
         },
 
         // ========== Admin ==========

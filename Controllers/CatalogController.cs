@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Palloncino.Core.Constants;
 using Palloncino.Models.DTOs;
 using Palloncino.Models.Entities;
 using Palloncino.Services.Interfaces;
@@ -120,7 +121,7 @@ public class CatalogController(
     /// POST /api/catalog - إضافة عنصر كتالوج (Admin)
     /// </summary>
     [HttpPost("catalog")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.CatalogCreate)]
     public async Task<IActionResult> CreateCatalogItem([FromBody] CreateCatalogItemDto createDto)
     {
         var item = mapper.Map<CatalogItem>(createDto);
@@ -147,7 +148,7 @@ public class CatalogController(
     /// PUT /api/catalog/:id - تعديل عنصر
     /// </summary>
     [HttpPut("catalog/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = Permissions.CatalogUpdate)]
     public async Task<IActionResult> UpdateCatalogItem(int id, [FromBody] UpdateCatalogItemDto updateDto)
     {
         var existingItem = await catalogService.GetCatalogItemByIdAsync(id);
@@ -179,7 +180,7 @@ public class CatalogController(
     /// DELETE /api/catalog/:id - حذف عنصر
     /// </summary>
     [HttpDelete("catalog/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Permissions.CatalogDelete)]
     public async Task<IActionResult> DeleteCatalogItem(int id)
     {
         var exists = await catalogService.CatalogItemExistsAsync(id);
