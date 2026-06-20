@@ -5,15 +5,6 @@ using Palloncino.Services.Interfaces;
 using Task = System.Threading.Tasks.Task;
 namespace Palloncino.Services.Implementations;
 
-public class StoredResponse
-{
-    public string Key { get; set; } = "";
-    public string RequestType { get; set; } = "";
-    public int StatusCode { get; set; }
-    public string ResponseBody { get; set; } = "";
-    public DateTime CreatedAt { get; set; }
-}
-
 // Database implementation
 public class DatabaseIdempotencyService(
     ApplicationDbContext context,

@@ -1,5 +1,4 @@
 namespace Palloncino.Services.Interfaces;
-using Palloncino.Services.Implementations;
 
 public interface IIdempotencyService
 {

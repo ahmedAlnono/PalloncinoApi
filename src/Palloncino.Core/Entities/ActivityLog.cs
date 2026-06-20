@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+
 
 namespace Palloncino.Models.Entities;
 

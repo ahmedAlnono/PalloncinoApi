@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Palloncino.Api/Palloncino.Api.csproj" />
+    <Project Path="src/Palloncino.Application/Palloncino.Application.csproj" />
+    <Project Path="src/Palloncino.Core/Palloncino.Core.csproj" />
+    <Project Path="src/Palloncino.Infrastructure/Palloncino.Infrastructure.csproj" />
+  </Folder>
+</Solution>
