@@ -1,41 +1,359 @@
+using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using Palloncino.Data;
+using Palloncino.Services.Implementations;
+using Palloncino.Services.Interfaces;
+using Palloncino.Mappings;
+using Palloncino.Models.Configuration;
+using Serilog;
+using Scalar.AspNetCore;
+using Stripe;
+using Palloncino.Middleware;
+using Palloncino.BackgroundJobs;
+using Palloncino.Core.Constants;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// ==== Add logger =====
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/palloncino-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30)
+    .CreateLogger();
+builder.Host.UseSerilog();
+
+
+// ====== Add Controller =========
+
+builder.Services.AddControllers()
+           .AddJsonOptions(options =>
+           {
+               options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+               options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+           });
+
+builder.Services.AddEndpointsApiExplorer();
+
+
+
+// ========= Add swagger =========
+builder.Services.AddOpenApi(options =>
+{
+    // Add document info
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Info = new()
+        {
+            Title = "Palloncino Management System API",
+            Version = "v1",
+            Description = "API for Palloncino Party Management System"
+        };
+
+        // Add JWT security scheme
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>(StringComparer.Ordinal);
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Enter your JWT token"
+        };
+
+        // Add security requirement
+        document.Security ??= new List<OpenApiSecurityRequirement>();
+        document.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document, externalResource: null)] = new List<string>()
+        });
+
+        return Task.CompletedTask;
+    });
+});
+
+
+// ========== Add Database ================
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(connectionString, sqliteOptions =>
+    {
+        sqliteOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name);
+        sqliteOptions.CommandTimeout(60);
+    }));
+
+
+// ========== 4. Configure JWT Authentication ==========
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "PalloncinoSuperSecretKey2024Min32Chars!";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "PalloncinoAPI";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "PalloncinoApp";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+
+    // For SignalR or WebSocket support if needed later
+    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+
+// ========== 5. Configure Authorization Policies ==========
+builder.Services.AddAuthorization(options =>
+{
+   foreach(var permission in Permissions.GetAllPermissions())
+    {
+        options.AddPolicy(permission,policy=>
+        policy.RequireClaim("permission",permission));
+    } 
+});
+
+
+// ========== 6. Register Custom Services ==========
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, Palloncino.Services.Implementations.TokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<IJobOrderService, JobOrderService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IQuotationService, QuotationService>();
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IIdempotencyService, DatabaseIdempotencyService>();
+builder.Services.AddHostedService<IdempotencyCleanupService>();
+
+builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+var stripeSecretKey = builder.Configuration[$"{StripeOptions.SectionName}:SecretKey"];
+if (!string.IsNullOrWhiteSpace(stripeSecretKey))
+    StripeConfiguration.ApiKey = stripeSecretKey;
+
+
+// builder.Services.AddScoped<IReportService, ReportService>();
+// builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+// builder.Services.AddScoped<IOrderService, OrderService>();
+// builder.Services.AddScoped<IDeliveryService, DeliveryService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+
+    options.AddPolicy("Production", policy =>
+    {
+        policy.WithOrigins(
+                "https://palloncino.com",
+                "https://admin.palloncino.com",
+                "https://api.palloncino.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
+// ========== 8. Configure Response Caching ==========
+builder.Services.AddResponseCaching();
+
+// ========== 9. Configure Memory Cache ==========
+builder.Services.AddMemoryCache();
+
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>(), typeof(MappingProfile));
+
+
+builder.Services.AddRateLimiter(options =>
+{
+    // Global policy - applies to all endpoints if no specific policy is used
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers["X-Forwarded-For"].ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Specific policy for authenticated users
+    options.AddPolicy("Authenticated", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 200,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Strict policy for login/register endpoints
+    options.AddPolicy("Strict", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 5,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(5)
+            }));
+
+    // Policy for mobile app API (higher limits)
+    options.AddPolicy("MobileAPI", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ??
+                          httpContext.Request.Headers["X-Device-Id"].ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 300,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Policy for delivery/driver endpoints
+    options.AddPolicy("DriverAPI", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name?.ToString() ?? "driver",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 500,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Configure rejection response
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/json";
+
+        TimeSpan retryAfter = TimeSpan.FromSeconds(60);
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan metadataRetryAfter))
+        {
+            retryAfter = metadataRetryAfter;
+        }
+
+        var response = new
+        {
+            status = 429,
+            message = "Too many requests. Please try again later.",
+            retryAfter = retryAfter.TotalSeconds
+        };
+
+        await context.HttpContext.Response.WriteAsJsonAsync(response, cancellationToken);
+    };
+});
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ========== 10. Apply Database Migrations ==========
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        logger.LogInformation("Applying database migrations...");
+        dbContext.Database.Migrate();
+        logger.LogInformation("Database migrations applied successfully.");
+
+        // Optional: Seed initial data
+        // await DbInitializer.InitializeAsync(dbContext);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while applying migrations.");
+        throw;
+    }
+}
+
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseCors("AllowAll");
+}
+app.UseMiddleware<PostRequestTransactionMiddleware>();
+app.UseMiddleware<IdempotencyMiddleware>();
+app.MapScalarApiReference(options =>
+{
+    options.WithTitle("Palloncino API");
+    options.WithTheme(ScalarTheme.Purple);
+    options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+});
+
+app.UseStaticFiles();
+app.UseResponseCaching();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+app.UseRateLimiter();
+
+if (app.Environment.IsProduction())
+{
+    app.UseCors("Production");
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 
-var summaries = new[]
+
+try
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
+    Log.Information("Starting Palloncino API...");
+    app.Run();
+}
+catch (Exception ex)
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    Log.CloseAndFlush();
 }
